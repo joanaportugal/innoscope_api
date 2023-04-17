@@ -28,7 +28,9 @@ class AuthController {
 
 	async login(req: Request, res: Response) {
 		try {
-			const userExists = await db.User.findOne({ where: { user_email: req.body.email } });
+			const userExists = await db.User.findOne({
+				where: { user_email: req.body.email },
+			});
 			let loggedUserId: number;
 
 			if (!userExists) {
@@ -37,23 +39,17 @@ class AuthController {
 					user_name: req.body.name,
 				});
 				loggedUserId = user ? user.user_id : 0;
-			}
-			else {
+			} else {
 				loggedUserId = userExists.user_id;
 			}
 
-			const token = jwt.sign(
-				{ loggedUserId },
-				process.env.SECRET || "",
-				{}
-			);
+			const token = jwt.sign({ loggedUserId }, process.env.SECRET || "", {});
 
 			return res.status(200).json({ token });
-
 		} catch (err) {
 			if (err instanceof ValidationError) {
 				return res.status(400).json({
-					msg: err.errors.map(e => e.message)
+					msg: err.errors.map((e) => e.message),
 				});
 			}
 			return res.status(500).json({
