@@ -465,4 +465,19 @@ IdeaTask.belongsTo(Idea);
 User.hasMany(IdeaTask);
 IdeaTask.belongsTo(User);
 
+
+export const tables = {
+	User,
+	Notification,
+	Category,
+	Technology,
+	Idea,
+	IdeaTechnology,
+	IdeaAuthor,
+	IdeaAttachment,
+	IdeaInteraction,
+	IdeaTeam,
+	IdeaTask
+}
+
 export default sequelize;
