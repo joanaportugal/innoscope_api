@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 
-//import router from "./routes";
+import router from "./routes";
 import db from "./database";
 const swaggerDocument = require("../swagger.json");
 
@@ -20,7 +20,7 @@ app.use(
     swaggerUi.setup(swaggerDocument, { explorer: true })
 );
 
-// app.use("/api/v1", router);
+app.use("/api/v1", router);
 
 app.all("*", (req, res) => res.status(404).json({ error: "Route not found!" }));
 
