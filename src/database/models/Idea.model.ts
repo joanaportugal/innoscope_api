@@ -58,24 +58,12 @@ class Idea extends Model<InferAttributes<Idea>, InferCreationAttributes<Idea>> {
 	declare hasTechnologies: HasManyHasAssociationsMixin<Technology, number>;
 	declare countTechnologies: HasManyCountAssociationsMixin;
 
-	declare getAuthors: HasManyGetAssociationsMixin<User>; // Note the null assertions!
-	declare addAuthor: HasManyAddAssociationMixin<User, number>;
-	declare addAuthors: HasManyAddAssociationsMixin<User, number>;
-	declare setAuthors: HasManySetAssociationsMixin<User, number>;
-	declare removeAuthor: HasManyRemoveAssociationMixin<User, number>;
-	declare removeAuthors: HasManyRemoveAssociationsMixin<User, number>;
-	declare hasAuthor: HasManyHasAssociationMixin<User, number>;
-	declare hasAuthors: HasManyHasAssociationsMixin<User, number>;
-	declare countAuthors: HasManyCountAssociationsMixin;
-
 	// You can also pre-declare possible inclusions, these will only be populated if you
 	// actively include a relation.
 	declare technologies?: NonAttribute<Technology[]>; // Note this is optional since it's only populated when explicitly requested in code
-	declare authors?: NonAttribute<User[]>; // Note this is optional since it's only populated when explicitly requested in code
 
 	declare static associations: {
 		technologies: Association<Technology, Idea>;
-		idea_authors: Association<User, Idea>;
 	};
 }
 

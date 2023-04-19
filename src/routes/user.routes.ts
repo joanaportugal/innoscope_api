@@ -19,8 +19,7 @@ router.post("/login", LoginValidator, validationErrors, authController.login);
 router
 	.get("/me/ideas",
 		authController.verifyToken,
-		PaginationValidator,
-		SearchIdeaValidator,
+		[...PaginationValidator, ...SearchIdeaValidator],
 		validationErrors,
 		userController.getAllIdeas
 	);

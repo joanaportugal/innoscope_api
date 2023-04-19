@@ -257,8 +257,6 @@ class UserController {
 				});
 			}
 		} catch (err) {
-			console.log(err);
-
 			if (err instanceof ValidationError) {
 				return res.status(400).json({
 					msg: err.errors.map((e) => e.message),
