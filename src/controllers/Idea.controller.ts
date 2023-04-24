@@ -88,6 +88,33 @@ class IdeaController {
 		}
 	}
 
+	async updateIdeasStatus() {
+		console.log("here");
+
+		// update "On Voting"...
+		// ...to "Rejected" if avg vote is less than 4.5
+		// ...to "Approved" if avg vote is more than/equal to 4.5
+		let onVotingIdeas = await db.Idea.findAll({ where: { idea_status: "On Voting" } });
+		for (const idea of onVotingIdeas) {
+			let filter = { IdeaIdeaId: idea.idea_id };
+			const interactions = await db.IdeaInteraction.findAll({ where: filter });
+			let voteSum = 0;
+			if (interactions) {
+				for (const interaction of interactions) {
+					voteSum += interaction.interaction_vote;
+				}
+			}
+			if (voteSum == 0 || (voteSum / interactions.length) < 4.5) {
+				await db.Idea.update({ idea_status: "Rejected" }, { where: { idea_id: idea.idea_id } });
+			} else if (voteSum >= 4.5) {
+				await db.Idea.update({ idea_status: "Approved" }, { where: { idea_id: idea.idea_id } });
+			}
+		}
+
+		// update "New" to "On Voting"
+		await db.Idea.update({ idea_status: "On Voting" }, { where: { idea_status: "New" } });
+	}
+
 	async getIdeaInteractions(req: Request, res: Response) {
 		try {
 			const idea = await db.Idea.findByPk(+req.params.ideaId);
