@@ -88,9 +88,7 @@ class IdeaController {
 		}
 	}
 
-	async updateIdeasStatus() {
-		console.log("here");
-
+	async updateIdeasStatusCron() {
 		// update "On Voting"...
 		// ...to "Rejected" if avg vote is less than 4.5
 		// ...to "Approved" if avg vote is more than/equal to 4.5
@@ -113,6 +111,34 @@ class IdeaController {
 
 		// update "New" to "On Voting"
 		await db.Idea.update({ idea_status: "On Voting" }, { where: { idea_status: "New" } });
+	}
+
+	async updateIdeaStatus(req: Request, res: Response) {
+		try {
+			// check idea status - only "Waiting" or "On Going"
+			const idea = await db.Idea.findByPk(+req.params.ideaId);
+			if (!idea) {
+				return res.status(404).json({
+					error: "Idea not found.",
+				});
+			}
+			if (idea.idea_status !== "Waiting" && idea.idea_status !== "On Going") {
+				return res.status(400).json({ error: "Idea status cannot be updated." });
+			}
+			// update to next status
+			if (idea.idea_status === "Waiting") {
+				await idea.update({ idea_status: "On Going" });
+			}
+			else {
+				await idea.update({ idea_status: "Finished" });
+			}
+
+			return res.status(200).send({ message: "Idea status updated successfully." });
+		} catch (err) {
+			return res.status(500).json({
+				error: "An error occurred. Try again!",
+			});
+		}
 	}
 
 	async getIdeaInteractions(req: Request, res: Response) {
@@ -182,9 +208,20 @@ class IdeaController {
 		}
 	}
 
-	addCommunityIdeaMember(req: Request, res: Response) {
+	async getCommunityIdeaMembers(req: Request, res: Response) {
 		try {
-			return res.status(200).send("ideas");
+			const idea = await db.Idea.findByPk(+req.params.ideaId);
+			if (!idea) {
+				return res.status(404).json({ error: "Idea not found." });
+			}
+			const teamMembers = await db.IdeaTeam.findAll({ where: { IdeaIdeaId: idea.idea_id } });
+			const users = await db.User.findAll({ where: { user_id: teamMembers.map(tm => tm.UserUserId) } });
+			let members = [];
+			for (const user of users) {
+				let teamMember = teamMembers.find(tm => tm.UserUserId == user.user_id);
+				members.push({ ...user.dataValues, role: teamMember?.role });
+			}
+			return res.status(200).json({ members });
 		} catch (err) {
 			return res.status(500).json({
 				error: "An error occurred. Try again!",
@@ -192,7 +229,124 @@ class IdeaController {
 		}
 	}
 
-	getCommunityIdeaMembers(req: Request, res: Response) {
+	async addLoggedUserToMembers(req: any, res: Response) {
+		try {
+			// check idea status - only "Approved", "Waiting" or "On Going"
+			const idea = await db.Idea.findByPk(+req.params.ideaId);
+			if (!idea) {
+				return res.status(404).json({ error: "Idea not found." });
+			}
+			if (idea.idea_status !== "Approved" && idea.idea_status !== "Waiting" && idea.idea_status !== "On Going") {
+				return res.status(400).json({ error: "Idea is not open for members." });
+			}
+			// validate if user is already in team
+			let validation = await db.IdeaTeam.findOne({ where: { IdeaIdeaId: idea.idea_id, UserUserId: +req.details.loggedUserId } });
+			if (validation) {
+				return res.status(400).json({ error: "User is already in team." });
+			}
+
+			// add user to team
+			await db.IdeaTeam.create({
+				IdeaIdeaId: idea.idea_id,
+				UserUserId: +req.details.loggedUserId,
+				role: "Member"
+			});
+			if (idea.idea_status === "Approved") {
+				await idea.update({ idea_status: "Waiting" });
+			}
+
+			return res.status(200).json({ message: "User added to team members." });
+		} catch (err) {
+			return res.status(500).json({
+				error: "An error occurred. Try again!",
+			});
+		}
+	}
+
+	async removeLoggedUserFromMembers(req: any, res: Response) {
+		try {
+			// check idea status - only "Waiting" or "On Going"
+			const idea = await db.Idea.findByPk(+req.params.ideaId);
+			if (!idea) {
+				return res.status(404).json({ error: "Idea not found." });
+			}
+			if (idea.idea_status !== "Approved" && idea.idea_status !== "Waiting" && idea.idea_status !== "On Going") {
+				return res.status(400).json({ error: "Idea is not open for members." });
+			}
+			// validate if user is already in team
+			let validation = await db.IdeaTeam.findOne({ where: { IdeaIdeaId: idea.idea_id, UserUserId: +req.details.loggedUserId } });
+			if (!validation) {
+				return res.status(400).json({ error: "User is not in team." });
+			}
+
+			// add user to team
+			await db.IdeaTeam.destroy({ where: { IdeaIdeaId: idea.idea_id, UserUserId: +req.details.loggedUserId } });
+
+			return res.status(200).json({ message: "User removed from team members." });
+		} catch (err) {
+			return res.status(500).json({
+				error: "An error occurred. Try again!",
+			});
+		}
+	}
+
+	async addRequestUserToMembers(req: Request, res: Response) {
+		try {
+			// check idea status - only "Waiting" or "On Going"
+			const idea = await db.Idea.findByPk(+req.params.ideaId);
+			if (!idea) {
+				return res.status(404).json({ error: "Idea not found." });
+			}
+			if (idea.idea_status !== "Approved" && idea.idea_status !== "Waiting" && idea.idea_status !== "On Going") {
+				return res.status(400).json({ error: "Idea is not open for members." });
+			}
+			// validate if user is already in team
+			let validation = await db.IdeaTeam.findOne({ where: { IdeaIdeaId: idea.idea_id, UserUserId: +req.body.userId } });
+			if (validation) {
+				return res.status(400).json({ error: "User is already in team or already requested." });
+			}
+			// add user to team
+			await db.IdeaTeam.create({
+				IdeaIdeaId: idea.idea_id,
+				UserUserId: +req.body.userId,
+				role: "Requested"
+			});
+			return res.status(200).json({ message: "User requested to team members." });
+		} catch (err) {
+			return res.status(500).json({
+				error: "An error occurred. Try again!",
+			});
+		}
+	}
+
+	async editRequestedUserToMembers(req: Request, res: Response) {
+		try {
+			const idea = await db.Idea.findByPk(+req.params.ideaId);
+			if (!idea) {
+				return res.status(404).json({ error: "Idea not found." });
+			}
+			let validation = await db.IdeaTeam.findOne({ where: { IdeaIdeaId: idea.idea_id, UserUserId: +req.params.userId } });
+			if (!validation) {
+				return res.status(400).json({ error: "There is no request for that team." });
+			}
+			// delete if value is false, update is true
+			if (req.body.accepted) {
+				await db.IdeaTeam.update({ role: "Member" },
+					{ where: { IdeaIdeaId: idea.idea_id, UserUserId: +req.params.userId } });
+			}
+			else {
+				await db.IdeaTeam.destroy({ where: { IdeaIdeaId: idea.idea_id, UserUserId: +req.params.userId } });
+			}
+
+			return res.status(200).json({ message: "User updated in team members." });
+		} catch (err) {
+			return res.status(500).json({
+				error: "An error occurred. Try again!",
+			});
+		}
+	}
+
+	getCommunityIdeaTasks(req: Request, res: Response) {
 		try {
 			return res.status(200).send("ideas");
 		} catch (err) {
@@ -212,7 +366,7 @@ class IdeaController {
 		}
 	}
 
-	getCommunityIdeaTasks(req: Request, res: Response) {
+	editCommunityIdeaTask(req: Request, res: Response) {
 		try {
 			return res.status(200).send("ideas");
 		} catch (err) {

@@ -22,7 +22,7 @@ cron expression: minute hour day(number) month day(weekday)
  */
 const ideaController = new IdeaController();
 // At 00:00 on every Monday
-cron.schedule("0 0 * * 1", ideaController.updateIdeasStatus);
+cron.schedule("0 0 * * 1", ideaController.updateIdeasStatusCron);
 
 app.use(
     "/docs",
