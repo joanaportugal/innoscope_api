@@ -14,7 +14,11 @@ const router = Router();
 const authController = new AuthController();
 const userController = new UserController();
 
+router.get("/", authController.verifyToken, userController.getUsers);
+
 router.post("/login", LoginValidator, validationErrors, authController.login);
+
+router.get("/me", authController.verifyToken, userController.getUserData);
 
 router
 	.get("/me/ideas",
@@ -47,6 +51,8 @@ router
 		validationErrors,
 		userController.editOneUserIdea
 	);
+
+router.get("/ranking", authController.verifyToken, userController.getUsersRanking);
 
 router.all("*", (req, res) =>
 	res.status(404).json({ error: "Route not found!" })
