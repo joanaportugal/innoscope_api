@@ -36,8 +36,10 @@ class IdeaTask extends Model<InferAttributes<IdeaTask>, InferCreationAttributes<
 	// foreign keys are automatically added by associations methods (like Model.belongsTo)
 	// by branding them using the `ForeignKey` type, `Model.init` will know it does not need to
 	// display an error if field is missing.
-	declare user: ForeignKey<User["user_id"]>;
+	declare user?: ForeignKey<User["user_id"]>;
 	declare idea: ForeignKey<Idea["idea_id"]>;
+	IdeaIdeaId?: any;
+	UserUserId?: any;
 }
 
 export default IdeaTask;

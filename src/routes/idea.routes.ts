@@ -10,6 +10,7 @@ import InteractionValidator from "../utils/validators/InteractionValidator";
 import IdeaIDParam from "../utils/validators/IdeaIDParam";
 import { UserIDBody } from "../utils/validators/UserIdValidator";
 import MemberValidator from "../utils/validators/MemberValidator";
+import TaskValidator from "../utils/validators/TaskValidator";
 
 const router = Router();
 const authController = new AuthController();
@@ -80,6 +81,24 @@ router.put("/:ideaId/invitations/:userId",
 	MemberValidator,
 	validationErrors,
 	ideaController.editRequestedUserToMembers);
+
+router.get("/:ideaId/tasks",
+	authController.verifyToken,
+	IdeaIDParam,
+	validationErrors,
+	ideaController.getCommunityIdeaTasks);
+
+router.post("/:ideaId/tasks",
+	authController.verifyToken,
+	[...IdeaIDParam, ...TaskValidator],
+	validationErrors,
+	ideaController.addCommunityIdeaTask);
+
+router.put("/:ideaId/tasks/:taskId",
+	authController.verifyToken,
+	IdeaIDParam,
+	validationErrors,
+	ideaController.editCommunityIdeaTask);
 
 router.all("*", (req, res) =>
 	res.status(404).json({ error: "Route not found!" })

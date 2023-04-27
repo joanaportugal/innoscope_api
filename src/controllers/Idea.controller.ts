@@ -201,7 +201,6 @@ class IdeaController {
 
 			return res.status(200).json({ message: "Interaction added or updated!" });
 		} catch (err) {
-			console.log(err)
 			return res.status(500).json({
 				error: "An error occurred. Try again!",
 			});
@@ -346,9 +345,36 @@ class IdeaController {
 		}
 	}
 
-	getCommunityIdeaTasks(req: Request, res: Response) {
+	async getCommunityIdeaTasks(req: any, res: Response) {
 		try {
-			return res.status(200).send("ideas");
+			// check if task is "Waiting" or "On Going"
+			const idea = await db.Idea.findByPk(+req.params.ideaId);
+			if (!idea) {
+				return res.status(404).json({ error: "Idea not found." });
+			}
+			if (idea.idea_status !== "Waiting" && idea.idea_status !== "On Going") {
+				return res.status(400).json({ error: "Cannot add tasks for this idea." });
+			}
+			// validate if logged user has permission to see task
+			let validation = await db.IdeaTeam.findOne({
+				where: { IdeaIdeaId: idea.idea_id, UserUserId: +req.details.loggedUserId, role: "Member" }
+			});
+			if (!validation) {
+				return res.status(400).json({ error: "You do not have permission to see tasks to this idea." });
+			}
+			let taskList = await db.IdeaTask.findAll({ where: { IdeaIdeaId: idea.idea_id } });
+			let tasks: any = [];
+			for (const item of taskList) {
+				let user = item.UserUserId ? await db.User.findByPk(item.UserUserId) : null;
+				tasks.push({
+					task_id: item.task_id,
+					task_description: item.task_description,
+					task_dueDate: item.task_dueDate,
+					task_userId: user?.user_id
+				})
+			}
+
+			return res.status(200).json({ tasks });
 		} catch (err) {
 			return res.status(500).json({
 				error: "An error occurred. Try again!",
@@ -356,9 +382,55 @@ class IdeaController {
 		}
 	}
 
-	addCommunityIdeaTask(req: Request, res: Response) {
+	async addCommunityIdeaTask(req: any, res: Response) {
+		let todayDate = new Date();
+		let pickedDate = new Date(req.body.dueDate);
+		let today_withoutTime = new Date(todayDate.getTime());
+		let picked_withoutTime = new Date(pickedDate.getTime());
+
+		today_withoutTime.setUTCHours(0, 0, 0, 0);
+		picked_withoutTime.setUTCHours(0, 0, 0, 0);
+
+		if (!(today_withoutTime.getTime() < picked_withoutTime.getTime())) {
+			return res.status(400).json({ error: "Pick a date after today." });
+		}
+
 		try {
-			return res.status(200).send("ideas");
+			// check if task is "Waiting" or "On Going"
+			const idea = await db.Idea.findByPk(+req.params.ideaId);
+			if (!idea) {
+				return res.status(404).json({ error: "Idea not found." });
+			}
+			if (idea.idea_status !== "Waiting" && idea.idea_status !== "On Going") {
+				return res.status(400).json({ error: "Cannot add tasks for this idea." });
+			}
+			// validate if logged user has permission to add task
+			let validation = await db.IdeaTeam.findOne({
+				where: { IdeaIdeaId: idea.idea_id, UserUserId: +req.details.loggedUserId, role: "Member" }
+			});
+			if (!validation) {
+				return res.status(400).json({ error: "You do not have permission to add tasks to this idea." });
+			}
+
+			let userId: number | undefined = undefined;
+
+			if (req.body.user) {
+				let user = await db.User.findByPk(+req.body.user);
+				if (user) {
+					userId = user.user_id;
+				}
+			}
+
+			await db.IdeaTask.create({
+				task_description: req.body.description,
+				task_status: "To Do",
+				task_dueDate: req.body.dueDate,
+				IdeaIdeaId: idea.idea_id,
+				UserUserId: userId || null
+			});
+
+			return res.status(201).json({ message: "Task added to idea." });
+
 		} catch (err) {
 			return res.status(500).json({
 				error: "An error occurred. Try again!",
@@ -366,9 +438,57 @@ class IdeaController {
 		}
 	}
 
-	editCommunityIdeaTask(req: Request, res: Response) {
+	async editCommunityIdeaTask(req: any, res: Response) {
+		let todayDate = new Date();
+		let pickedDate = new Date(req.body.dueDate);
+		let today_withoutTime = new Date(todayDate.getTime());
+		let picked_withoutTime = new Date(pickedDate.getTime());
+
+		today_withoutTime.setUTCHours(0, 0, 0, 0);
+		picked_withoutTime.setUTCHours(0, 0, 0, 0);
+
+		if (!(today_withoutTime.getTime() < picked_withoutTime.getTime())) {
+			return res.status(400).json({ error: "Pick a date after today." });
+		}
+
 		try {
-			return res.status(200).send("ideas");
+			// check if task is "Waiting" or "On Going"
+			const idea = await db.Idea.findByPk(+req.params.ideaId);
+			if (!idea) {
+				return res.status(404).json({ error: "Idea not found." });
+			}
+			if (idea.idea_status !== "Waiting" && idea.idea_status !== "On Going") {
+				return res.status(400).json({ error: "Cannot add tasks for this idea." });
+			}
+			// validate if task belongs to idea
+			const task = await db.IdeaTask.findOne({ where: { IdeaIdeaId: idea.idea_id, task_id: +req.params.taskId } });
+			if (!task) {
+				return res.status(404).json({ error: "Task not found or it doesn't belong to that idea." });
+			}
+
+			// validate if logged user has permission to edit task
+			let validation = await db.IdeaTeam.findOne({
+				where: { IdeaIdeaId: idea.idea_id, UserUserId: +req.details.loggedUserId, role: "Member" }
+			});
+			if (!validation) {
+				return res.status(400).json({ error: "You do not have permission to edit tasks to this idea." });
+			}
+
+			let userId: number | undefined = undefined;
+			if (req.body.user) {
+				let user = await db.User.findByPk(+req.body.user);
+				if (user) {
+					userId = user.user_id;
+				}
+			}
+			await task.update({
+				task_description: req.body.description,
+				task_status: req.body.status,
+				task_dueDate: req.body.dueDate,
+				IdeaIdeaId: idea.idea_id,
+				UserUserId: userId || null
+			})
+			return res.status(200).json({ message: "Task updated successfully." });
 		} catch (err) {
 			return res.status(500).json({
 				error: "An error occurred. Try again!",
