@@ -267,6 +267,65 @@ class UserController {
 			});
 		}
 	}
+
+	async getUsers(req: Request, res: Response) {
+		try {
+			const users = await db.User.findAll();
+			return res.status(200).json({ users });
+		} catch (err) {
+			return res.status(500).json({
+				error: "An error occurred. Try again!",
+			});
+		}
+	}
+
+	async getUserData(req: any, res: Response) {
+		try {
+			// profile data
+			const user = await db.User.findByPk(+req.details.loggedUserId);
+
+			// ideas
+			const ideasFromUser = await db.IdeaAuthor.findAll({ where: { UserUserId: user?.user_id } });
+			const ideaList = await db.Idea.findAll({ where: { idea_id: ideasFromUser.map((item: any) => item.IdeaIdeaId) } });
+			const ideas: any = [];
+			for (const idea of ideaList) {
+				const category = await db.Category.findByPk(idea.CategoryCategoryId);
+				ideas.push({ ...idea.dataValues, category_name: category?.category_name });
+			}
+			// tasks
+			const taskList = await db.IdeaTask.findAll({ where: { UserUserId: user?.user_id } });
+			const tasks: any = [];
+			for (const task of taskList) {
+				const idea = await db.Idea.findByPk(task.IdeaIdeaId);
+				tasks.push({ ...task.dataValues, idea_name: idea?.idea_title });
+			}
+
+			return res.status(200).json({ user, ideas, tasks });
+		} catch (err) {
+			return res.status(500).json({
+				error: "An error occurred. Try again!",
+			});
+		}
+	}
+
+	async getUsersRanking(req: Request, res: Response) {
+		try {
+			const users = await db.User.findAll();
+			let list: any = [];
+
+			for (const user of users) {
+				const numberIdeas = await db.IdeaAuthor.count({ where: { UserUserId: user.user_id } });
+				const numberTasksDone = await db.IdeaTask.count({ where: { UserUserId: user.user_id, task_status: "Done" } });
+				list.push({ user: user.user_name, ideas: numberIdeas, tasks: numberTasksDone })
+			}
+
+			return res.status(200).json({ list });
+		} catch (err) {
+			return res.status(500).json({
+				error: "An error occurred. Try again!",
+			});
+		}
+	}
 }
 
 export default UserController;

@@ -64,6 +64,7 @@ class Idea extends Model<InferAttributes<Idea>, InferCreationAttributes<Idea>> {
 
 	declare static associations: {
 		technologies: Association<Technology, Idea>;
+		authors: Association<User, Idea>;
 	};
 }
 
