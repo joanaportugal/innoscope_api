@@ -1,9 +1,11 @@
 import express from "express";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
+import cron from "node-cron";
 
 import router from "./routes";
 import db from "./database";
+import IdeaController from "./controllers/Idea.controller";
 const swaggerDocument = require("../swagger.json");
 
 const port = Number(process.env.PORT) || 3000;
@@ -13,6 +15,14 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+/*
+cron is a task scheduler that executes a function
+cron expression: minute hour day(number) month day(weekday)
+ */
+const ideaController = new IdeaController();
+// At 00:00 on every Monday
+cron.schedule("0 0 * * 1", ideaController.updateIdeasStatusCron);
 
 app.use(
     "/docs",

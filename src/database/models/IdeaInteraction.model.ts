@@ -37,6 +37,7 @@ class IdeaInteraction extends Model<InferAttributes<IdeaInteraction>, InferCreat
 	// display an error if field is missing.
 	declare user: ForeignKey<User["user_id"]>;
 	declare idea: ForeignKey<Idea["idea_id"]>;
+	UserUserId?: any;
 }
 
 export default IdeaInteraction;

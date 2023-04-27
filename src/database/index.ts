@@ -259,6 +259,7 @@ Idea.init(
 		idea_status: {
 			type: DataTypes.ENUM("New", "On Voting", "Rejected", "Approved", "Waiting", "On Going", "Finished"),
 			allowNull: false,
+			defaultValue: "New",
 			validate: {
 				isIn: {
 					args: [["New", "On Voting", "Rejected", "Approved", "Waiting", "On Going", "Finished"]],
