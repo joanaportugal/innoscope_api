@@ -2,7 +2,8 @@
 	"openapi": "3.0.1",
 	"info": {
 		"title": "InnoScope API",
-		"version": "1.0"
+		"version": "1.0",
+		"description": "InnoScope is DevScope's intern project for idea submission and realization into teams. It started originally in 2023's Academy."
 	},
 	"produces": [
 		"application/json"
@@ -10,14 +11,219 @@
 	"schemes": [
 		"http"
 	],
-	"security": {
-		"bearer": {
-			"type": "http",
-			"scheme": "bearer",
-			"bearerFormat": "JWT"
+	"components": {
+		"securitySchemes": {
+			"bearer": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT"
+			}
+		},
+		"schemas": {
+			"Users": {
+				"type": "object",
+				"required": [
+					"user_name",
+					"user_email"
+				],
+				"properties": {
+					"user_id": {
+						"type": "integer",
+						"description": "ID of user"
+					},
+					"user_name": {
+						"type": "string",
+						"description": "Name of user"
+					},
+					"user_email": {
+						"type": "string",
+						"description": "Email of user",
+						"format": "email"
+					}
+				},
+				"example": {}
+			},
+			"Categories": {
+				"type": "object",
+				"required": [
+					"category_name"
+				],
+				"properties": {
+					"category_id": {
+						"type": "integer",
+						"description": "ID of category"
+					},
+					"category_name": {
+						"type": "string",
+						"description": "Name of category"
+					}
+				},
+				"example": {
+					"category_name": "Portals"
+				}
+			},
+			"Technologies": {
+				"type": "object",
+				"required": [
+					"technology_name"
+				],
+				"properties": {
+					"technology_id": {
+						"type": "integer",
+						"description": "ID of technology"
+					},
+					"technology_name": {
+						"type": "string",
+						"description": "Name of technology"
+					}
+				},
+				"example": {
+					"technology_name": ".NET"
+				}
+			},
+			"Ideas": {
+				"type": "object",
+				"required": [
+					"idea_title",
+					"idea_summary",
+					"idea_description",
+					"idea_complexity",
+					"idea_durationWeeks",
+					"CategoryCategoryId"
+				],
+				"properties": {
+					"idea_id": {
+						"type": "integer",
+						"description": "ID of idea"
+					},
+					"idea_title": {
+						"type": "string",
+						"description": "Title of idea"
+					},
+					"idea_summary": {
+						"type": "string",
+						"description": "Brief description of idea"
+					},
+					"idea_description": {
+						"type": "string",
+						"description": "Full description of idea"
+					},
+					"idea_complexity": {
+						"type": "string",
+						"enum": [
+							"Easy",
+							"Medium",
+							"Hard"
+						],
+						"description": "Complexity of idea"
+					},
+					"idea_durationWeeks": {
+						"type": "integer",
+						"description": "Time to complete idea",
+						"minimum": 1
+					},
+					"idea_isAnon": {
+						"type": "boolean",
+						"description": "Does author wants to keep his/her identity anonymous?",
+						"default": false
+					},
+					"idea_status": {
+						"type": "string",
+						"enum": [
+							"New",
+							"On Voting",
+							"Rejected",
+							"Approved",
+							"Waiting",
+							"On Going",
+							"Finished"
+						],
+						"description": "Status of idea",
+						"default": "New"
+					},
+					"idea_details": {
+						"type": "string",
+						"description": "Extra details of idea"
+					},
+					"CategoryCategoryId": {
+						"type": "integer",
+						"description": "Category ID of idea"
+					}
+				},
+				"example": {
+					"idea_title": "Some title",
+					"idea_summary": "The idea is about something",
+					"idea_description": "Some description that it's supposed to be big",
+					"idea_complexity": "Easy",
+					"idea_durationWeeks": 2,
+					"CategoryCategoryId": 1
+				}
+			},
+			"Idea_Attachment": {
+				"type": "object",
+				"required": [],
+				"properties": {},
+				"example": {}
+			},
+			"Idea_Author": {
+				"type": "object",
+				"required": [],
+				"properties": {},
+				"example": {}
+			},
+			"Idea_Technology": {
+				"type": "object",
+				"required": [],
+				"properties": {},
+				"example": {}
+			},
+			"Idea_Interaction": {
+				"type": "object",
+				"required": [],
+				"properties": {},
+				"example": {}
+			},
+			"Idea_Team": {
+				"type": "object",
+				"required": [],
+				"properties": {},
+				"example": {}
+			},
+			"Idea_Task": {
+				"type": "object",
+				"required": [],
+				"properties": {},
+				"example": {}
+			},
+			"Notifications": {
+				"type": "object",
+				"required": [],
+				"properties": {},
+				"example": {}
+			}
 		}
 	},
-	"components": {},
-	"tags": {},
+	"tags": [
+		{
+			"name": "Users",
+			"description": "Users' routes"
+		},
+		{
+			"name": "Categories",
+			"description": "Categories' routes"
+		},
+		{
+			"name": "Technologies",
+			"description": "Technologies' routes"
+		},
+		{
+			"name": "Ideas",
+			"description": "Ideas' routes"
+		},
+		{
+			"name": "Teams",
+			"description": "Teams' routes"
+		}
+	],
 	"paths": {}
 }
