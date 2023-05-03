@@ -358,6 +358,11 @@ IdeaInteraction.init(
 
 IdeaTeam.init(
 	{
+		ideateam_id: {
+			type: DataTypes.INTEGER.UNSIGNED,
+			autoIncrement: true,
+			primaryKey: true,
+		},
 		role: {
 			type: DataTypes.ENUM("Member", "Requested"),
 			allowNull: false,

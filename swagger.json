@@ -161,45 +161,264 @@
 			},
 			"Idea_Attachment": {
 				"type": "object",
-				"required": [],
-				"properties": {},
-				"example": {}
+				"required": [
+					"attachment_file",
+					"attachment_isPublic",
+					"IdeaIdeaId",
+					"UserUserId"
+				],
+				"properties": {
+					"attachment_id": {
+						"type": "integer",
+						"description": "ID of attachment"
+					},
+					"attachment_file": {
+						"type": "string",
+						"description": "File url of attachment"
+					},
+					"attachment_isPublic": {
+						"type": "boolean",
+						"description": "Is file visible for all users?"
+					},
+					"IdeaIdeaId": {
+						"type": "integer",
+						"description": "Idea ID associated with attachment"
+					},
+					"UserUserId": {
+						"type": "integer",
+						"description": "User ID who sent the attachment"
+					}
+				},
+				"example": {
+					"attachment_file": "wwww.file.com",
+					"attachment_isPublic": true,
+					"IdeaIdeaId": 1,
+					"UserUserId": 1
+				}
 			},
 			"Idea_Author": {
 				"type": "object",
-				"required": [],
-				"properties": {},
-				"example": {}
+				"required": [
+					"IdeaIdeaId",
+					"UserUserId"
+				],
+				"properties": {
+					"IdeaIdeaId": {
+						"type": "integer",
+						"description": "Idea ID"
+					},
+					"UserUserId": {
+						"type": "integer",
+						"description": "User ID who is author of idea"
+					}
+				},
+				"example": {
+					"IdeaIdeaId": 1,
+					"UserUserId": 1
+				}
 			},
 			"Idea_Technology": {
 				"type": "object",
-				"required": [],
-				"properties": {},
-				"example": {}
+				"required": [
+					"IdeaIdeaId",
+					"TechnologyTechnologyId"
+				],
+				"properties": {
+					"IdeaIdeaId": {
+						"type": "integer",
+						"description": "Idea ID"
+					},
+					"TechnologyTechnologyId": {
+						"type": "integer",
+						"description": "ID of technology used in idea"
+					}
+				},
+				"example": {
+					"IdeaIdeaId": 1,
+					"TechnologyTechnologyId": 1
+				}
 			},
 			"Idea_Interaction": {
 				"type": "object",
-				"required": [],
-				"properties": {},
-				"example": {}
+				"required": [
+					"IdeaIdeaId",
+					"UserUserId"
+				],
+				"properties": {
+					"interaction_id": {
+						"type": "integer",
+						"description": "ID of interaction"
+					},
+					"interaction_vote": {
+						"type": "integer",
+						"description": "Vote quantity of interaction",
+						"minimum": 1,
+						"maximum": 5
+					},
+					"interaction_comment": {
+						"type": "string",
+						"description": "Comment text of interaction"
+					},
+					"IdeaIdeaId": {
+						"type": "integer",
+						"description": "Idea ID"
+					},
+					"UserUserId": {
+						"type": "integer",
+						"description": "User ID who is author of idea"
+					}
+				},
+				"example": {
+					"IdeaIdeaId": 1,
+					"UserUserId": 1,
+					"interaction_vote": 5,
+					"interaction_comment": "good idea"
+				}
 			},
 			"Idea_Team": {
 				"type": "object",
-				"required": [],
-				"properties": {},
-				"example": {}
+				"required": [
+					"role",
+					"IdeaIdeaId",
+					"UserUserId"
+				],
+				"properties": {
+					"ideateam_id": {
+						"type": "integer",
+						"description": "ID of idea_team"
+					},
+					"role": {
+						"type": "string",
+						"enum": [
+							"Member",
+							"Requested"
+						],
+						"default": "Requested",
+						"description": "Type of role given to user for team"
+					},
+					"IdeaIdeaId": {
+						"type": "integer",
+						"description": "Idea ID for team"
+					},
+					"UserUserId": {
+						"type": "integer",
+						"description": "User ID who is member of team"
+					}
+				},
+				"example": {
+					"role": "Requested",
+					"IdeaIdeaId": 1,
+					"UserUserId": 1
+				}
 			},
 			"Idea_Task": {
 				"type": "object",
-				"required": [],
-				"properties": {},
-				"example": {}
+				"required": [
+					"task_description",
+					"task_dueDate",
+					"IdeaIdeaId"
+				],
+				"properties": {
+					"task_id": {
+						"type": "integer",
+						"description": "ID of task"
+					},
+					"task_description": {
+						"type": "string",
+						"description": "Description of task"
+					},
+					"task_status": {
+						"type": "string",
+						"enum": [
+							"To Do",
+							"Doing",
+							"Done"
+						],
+						"default": "To Do",
+						"description": "Status of task"
+					},
+					"task_dueDate": {
+						"type": "integer",
+						"description": "Due date of task (date format)"
+					},
+					"IdeaIdeaId": {
+						"type": "integer",
+						"description": "Idea ID"
+					},
+					"UserUserId": {
+						"type": "integer",
+						"description": "User ID who has to complete the task"
+					}
+				},
+				"example": {
+					"IdeaIdeaId": 1,
+					"UserUserId": 1,
+					"task_description": "create new page",
+					"task_dueDate": "01-01-2021"
+				}
 			},
 			"Notifications": {
 				"type": "object",
-				"required": [],
-				"properties": {},
-				"example": {}
+				"required": [
+					"notification_title",
+					"notification_description",
+					"UserUserId"
+				],
+				"properties": {
+					"notification_id": {
+						"type": "integer",
+						"description": "ID of notification"
+					},
+					"notification_title": {
+						"type": "string",
+						"description": "Title of notification"
+					},
+					"notification_description": {
+						"type": "string",
+						"description": "Description of notification"
+					},
+					"UserUserId": {
+						"type": "integer",
+						"description": "User ID for notifications"
+					}
+				},
+				"example": {
+					"notification_title": "Update",
+					"notification_description": "New status update on idea X",
+					"UserUserId": 1
+				}
+			}
+		},
+		"parameters": {
+			"userId": {
+				"name": "userId",
+				"in": "path",
+				"description": "User ID",
+				"required": true,
+				"schema": {
+					"type": "integer",
+					"minimum": 1
+				}
+			},
+			"ideaId": {
+				"name": "ideaId",
+				"in": "path",
+				"description": "Idea ID",
+				"required": true,
+				"schema": {
+					"type": "integer",
+					"minimum": 1
+				}
+			},
+			"taskId": {
+				"name": "taskId",
+				"in": "path",
+				"description": "Task ID",
+				"required": true,
+				"schema": {
+					"type": "integer",
+					"minimum": 1
+				}
 			}
 		}
 	},
@@ -225,5 +444,488 @@
 			"description": "Teams' routes"
 		}
 	],
-	"paths": {}
+	"paths": {
+		"/users": {
+			"get": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			}
+		},
+		"/users/login": {
+			"post": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			}
+		},
+		"/users/me": {
+			"get": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			}
+		},
+		"/users/me/ideas": {
+			"get": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			},
+			"post": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			}
+		},
+		"/users/me/ideas/{ideaId}": {
+			"get": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			},
+			"put": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			}
+		},
+		"/users/ranking": {
+			"get": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			}
+		},
+		"/categories": {
+			"get": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			},
+			"post": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			}
+		},
+		"/technologies": {
+			"get": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			},
+			"post": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			}
+		},
+		"/ideas": {
+			"get": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			}
+		},
+		"/ideas/{ideaId}": {
+			"get": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			},
+			"patch": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			}
+		},
+		"/ideas/{ideaId}/interactions": {
+			"get": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			},
+			"post": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			}
+		},
+		"/ideas/{ideaId}/members": {
+			"get": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			},
+			"post": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			},
+			"delete": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			}
+		},
+		"/ideas/{ideaId}/invitations": {
+			"post": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			}
+		},
+		"/ideas/{ideaId}/invitations/{userId}": {
+			"put": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			}
+		},
+		"/ideas/{ideaId}/tasks": {
+			"get": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			},
+			"post": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			}
+		},
+		"/ideas/{ideaId}/tasks/{taskId}": {
+			"put": {
+				"summary": "",
+				"description": "",
+				"operationId": "",
+				"tags": [],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {},
+					"201": {},
+					"400": {},
+					"404": {}
+				}
+			}
+		}
+	}
 }

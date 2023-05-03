@@ -26,6 +26,8 @@ import User from "./User.model";
 import Idea from "./Idea.model";
 
 class IdeaTeam extends Model<InferAttributes<IdeaTeam>, InferCreationAttributes<IdeaTeam>> {
+	// id can be undefined during creation when using `autoIncrement`
+	declare ideateam_id: CreationOptional<number>;
 	declare role: string;
 
 	// foreign keys are automatically added by associations methods (like Model.belongsTo)
