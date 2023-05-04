@@ -30,7 +30,7 @@ app.use(
     swaggerUi.setup(swaggerDocument, { explorer: true })
 );
 
-app.use("/api/v1", router);
+app.use("/api", router);
 
 app.all("*", (req, res) => res.status(404).json({ error: "Route not found!" }));
 

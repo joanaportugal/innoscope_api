@@ -10,7 +10,7 @@ class AuthController {
 		const header = req.headers["x-access-token"] || req.headers.authorization;
 		if (typeof header == "undefined") {
 			return res.status(401).json({
-				error: "You need to be authenticated to access to this route!",
+				error: "You need to be authenticated to access to this route.",
 			});
 		}
 		const bearer = header.split(" "); // Authorization: Bearer <token>
@@ -21,7 +21,7 @@ class AuthController {
 			next();
 		} catch (err) {
 			return res.status(401).json({
-				error: "Unauthorized!",
+				error: "Unauthorized.",
 			});
 		}
 	}
@@ -48,8 +48,8 @@ class AuthController {
 			return res.status(200).json({ token });
 		} catch (err) {
 			if (err instanceof ValidationError) {
-				return res.status(400).json({
-					msg: err.errors.map((e) => e.message),
+				return res.status(422).json({
+					errors: err.errors.map((e) => e.message),
 				});
 			}
 			return res.status(500).json({

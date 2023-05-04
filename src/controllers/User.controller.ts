@@ -7,13 +7,13 @@ import { filterParams, setSort } from "../utils/searches/IdeaSearchAll";
 
 class UserController {
 	async getAllIdeas(req: any, res: Response) {
-		let per_page = req.query.per_page || 4;
+		let per_page = req.query.per_page || 20;
 		let curr_page = req.query.curr_page || 1;
 
 		let filters: any = { ...filterParams(req.query) };
 
 		try {
-			const offset = (curr_page < 1 ? curr_page : curr_page - 1) * per_page;
+			const offset = (curr_page > 1 ? curr_page - 1 : curr_page) * per_page;
 
 			const user = await db.User.findByPk(req.details.loggedUserId);
 
@@ -49,8 +49,8 @@ class UserController {
 			const last_page = Math.ceil(ideas.length / per_page);
 			let pagination = {
 				total: ideas.length,
-				per_page: per_page || 20,
-				curr_page: curr_page || 1,
+				per_page: per_page,
+				curr_page: curr_page,
 				prev_page: curr_page == 1 ? null : curr_page - 1,
 				next_page: curr_page == last_page ? null : curr_page + 1,
 				offset,
@@ -109,7 +109,7 @@ class UserController {
 				idea_details: details,
 			};
 
-			await sequelize.transaction(async (trx) => {
+			let ideaTrx = await sequelize.transaction(async (trx) => {
 				const idea = await db.Idea.create(ideaItem, { transaction: trx });
 
 				let list = coauthors ? [req.details.loggedUserId, ...coauthors] : [req.details.loggedUserId];
@@ -132,7 +132,7 @@ class UserController {
 
 			});
 
-			return res.status(201).json({ message: "Idea created." });
+			return res.status(201).json({ message: "Idea created.", ideaId: ideaTrx.idea_id });
 		} catch (err) {
 			if (err instanceof ValidationError) {
 				return res.status(400).json({
@@ -202,7 +202,7 @@ class UserController {
 		} = req.body;
 
 		try {
-			const user = await db.User.findByPk(req.details.loggedUserId);
+			const user = await db.User.findByPk(+req.details.loggedUserId);
 
 			if (user) {
 				const ideaExistsInUser = await user.hasIdea(+req.params.ideaId);
@@ -219,6 +219,23 @@ class UserController {
 					idea_isAnon: Boolean(isAnon),
 					idea_details: details,
 				};
+
+				// validate coauthors existence
+				if (coauthors) {
+					const idea_coauthors = await db.User.findAll({ where: { user_id: { [Op.in]: coauthors } } });
+					if (idea_coauthors.length != coauthors.length) {
+						return res.status(404).json({
+							error: "Some authors you're trying to add don't exist.",
+						});
+					}
+				}
+				// validate technologies existence
+				const idea_technologies = await db.Technology.findAll({ where: { technology_id: { [Op.in]: technologies } } });
+				if (idea_technologies.length != technologies.length) {
+					return res.status(404).json({
+						error: "Some technologies you're trying to add don't exist.",
+					});
+				}
 
 				await sequelize.transaction(async (trx) => {
 					const idea = await db.Idea.update(ideaItem, {
@@ -252,11 +269,14 @@ class UserController {
 				return res.status(200).json({ message: "Idea updated." });
 			}
 			else {
+				console.log("erro");
+
 				return res.status(500).json({
 					error: "An error occurred. Try again!",
 				});
 			}
 		} catch (err) {
+
 			if (err instanceof ValidationError) {
 				return res.status(400).json({
 					msg: err.errors.map((e) => e.message),

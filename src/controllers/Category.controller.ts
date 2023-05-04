@@ -19,11 +19,11 @@ class CategoryController {
 		try {
 			await db.Category.create({ category_name: req.body.name });
 
-			return res.status(200).json({ message: "Category created." });
+			return res.status(201).json({ message: "Category created." });
 		} catch (err) {
 			if (err instanceof ValidationError) {
-				return res.status(400).json({
-					msg: err.errors.map((e) => e.message),
+				return res.status(422).json({
+					errors: err.errors.map((e) => e.message),
 				});
 			}
 			return res.status(500).json({

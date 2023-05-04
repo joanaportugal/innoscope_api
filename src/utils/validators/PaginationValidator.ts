@@ -4,12 +4,12 @@ const PaginationValidator = [
 	query("per_page")
 		.toInt()
 		.isInt({ min: 1 })
-		.withMessage("Please enter a valid per_page quantity.")
+		.withMessage("Please enter a valid per page quantity.")
 		.optional(),
 	query("curr_page")
 		.toInt()
 		.isInt({ min: 1 })
-		.withMessage("Please enter a valid page number.")
+		.withMessage("Please enter a valid current page number.")
 		.optional(),
 ];
 

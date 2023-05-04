@@ -1,7 +1,7 @@
 import { body } from "express-validator";
 
 const TechnologyValidator = [
-	body("name").isString().notEmpty().withMessage("Please enter a valid technology name."),
+	body("name").notEmpty().withMessage("Please enter a technology name."),
 ];
 
 export default TechnologyValidator;

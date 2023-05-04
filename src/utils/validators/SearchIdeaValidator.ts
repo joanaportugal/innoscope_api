@@ -15,7 +15,7 @@ const SearchIdeaValidator = [
 		.withMessage("Please enter a valid status.").optional(),
 	query("sort")
 		.isIn(["Name (A-Z)", "Name (Z-A)", "Creation (New-Old)", "Creation (Old-New)"])
-		.withMessage("Please enter a sort param.").optional(),
+		.withMessage("Please enter a valid sort type.").optional(),
 ];
 
 export default SearchIdeaValidator;

@@ -1,19 +1,16 @@
 import { body } from "express-validator";
 
 const SendIdeaValidator = [
-	body("title").isString().notEmpty().withMessage("Please enter a title."),
-	body("summary").isString().notEmpty().withMessage("Please enter a summary."),
-	body("description")
-		.isString()
-		.notEmpty()
-		.withMessage("Please enter a description."),
+	body("title").notEmpty().withMessage("Please enter a title."),
+	body("summary").notEmpty().withMessage("Please enter a summary."),
+	body("description").notEmpty().withMessage("Please enter a description."),
 	body("category")
 		.isInt({ min: 1 })
 		.withMessage("Please enter a valid category."),
 	body("complexity")
-		.isString()
 		.notEmpty()
-		.withMessage("Please enter a complexity."),
+		.withMessage("Please enter a complexity.")
+		.isIn(["Easy", "Medium", "Hard"]).withMessage("Please enter a valid complexity."),
 	body("duration")
 		.isInt({ min: 1 })
 		.withMessage("Please enter a valid duration."),
@@ -32,9 +29,8 @@ const SendIdeaValidator = [
 		.withMessage("Please enter valid coauthors.")
 		.optional(),
 	body("details")
-		.isString()
 		.notEmpty()
-		.withMessage("Please enter a details.")
+		.withMessage("Please enter details.")
 		.optional(),
 	body("isAnon")
 		.isBoolean()

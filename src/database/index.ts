@@ -1,25 +1,6 @@
 import {
-	Association,
 	DataTypes,
-	HasManyAddAssociationMixin,
-	HasManyCountAssociationsMixin,
-	HasManyCreateAssociationMixin,
-	HasManyGetAssociationsMixin,
-	HasManyHasAssociationMixin,
-	HasManySetAssociationsMixin,
-	HasManyAddAssociationsMixin,
-	HasManyHasAssociationsMixin,
-	HasManyRemoveAssociationMixin,
-	HasManyRemoveAssociationsMixin,
-	Model,
-	ModelDefined,
-	Optional,
 	Sequelize,
-	InferAttributes,
-	InferCreationAttributes,
-	CreationOptional,
-	NonAttribute,
-	ForeignKey,
 } from "sequelize";
 
 import dbConfig from "../config/db";
@@ -197,10 +178,6 @@ Idea.init(
 		idea_title: {
 			type: DataTypes.STRING,
 			allowNull: false,
-			unique: {
-				name: "unique_idea_title",
-				msg: "Idea title already added."
-			},
 			validate: {
 				notNull: {
 					msg: "Please enter an idea title."

@@ -3,7 +3,7 @@
 	"info": {
 		"title": "InnoScope API",
 		"version": "1.0",
-		"description": "InnoScope is DevScope's intern project for idea submission and realization into teams. It started originally in 2023's Academy."
+		"description": "InnoScope is DevScope's intern project for idea submission and realization into teams. It started at 2023's Academy."
 	},
 	"produces": [
 		"application/json"
@@ -419,6 +419,100 @@
 					"type": "integer",
 					"minimum": 1
 				}
+			},
+			"per_page": {
+				"name": "per_page",
+				"in": "query",
+				"description": "Number of itens per page",
+				"schema": {
+					"type": "integer",
+					"minimum": 1,
+					"default": 20
+				}
+			},
+			"curr_page": {
+				"name": "curr_page",
+				"in": "query",
+				"description": "Number of current page",
+				"schema": {
+					"type": "integer",
+					"minimum": 1,
+					"default": 1
+				}
+			},
+			"title": {
+				"name": "title",
+				"in": "query",
+				"description": "Title to search",
+				"schema": {
+					"type": "string"
+				}
+			},
+			"category": {
+				"name": "category",
+				"in": "query",
+				"description": "Number of category to filter",
+				"schema": {
+					"type": "integer",
+					"minimum": 1
+				}
+			},
+			"status": {
+				"name": "status",
+				"in": "query",
+				"description": "Status type to filter",
+				"schema": {
+					"type": "string",
+					"enum": [
+						"New",
+						"On Voting",
+						"Rejected",
+						"Approved",
+						"Waiting",
+						"On Going",
+						"Finished"
+					]
+				}
+			},
+			"sort": {
+				"name": "sort",
+				"in": "query",
+				"description": "Sort type to order",
+				"schema": {
+					"type": "string",
+					"enum": [
+						"Name (A-Z)",
+						"Name (Z-A)",
+						"Creation (New-Old)",
+						"Creation (Old-New)"
+					]
+				}
+			}
+		},
+		"responses": {
+			"unauthorized": {
+				"description": "Unauthorized",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object"
+						},
+						"examples": {
+							"No token": {
+								"value": {
+									"success": false,
+									"msg": "You need to be authenticated to access to this route."
+								}
+							},
+							"Invalid token": {
+								"value": {
+									"success": false,
+									"msg": "Unauthorized."
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	},
@@ -438,492 +532,1543 @@
 		{
 			"name": "Ideas",
 			"description": "Ideas' routes"
-		},
-		{
-			"name": "Teams",
-			"description": "Teams' routes"
 		}
 	],
 	"paths": {
-		"/users": {
-			"get": {
-				"summary": "",
-				"description": "",
-				"operationId": "",
-				"tags": [],
-				"security": [
-					{
-						"bearer": []
-					}
+		"/users/login": {
+			"post": {
+				"summary": "Register/Log user in the system",
+				"operationId": "login",
+				"tags": [
+					"Users"
 				],
-				"parameters": [],
+				"requestBody": {
+					"description": "user to log to the system",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Users"
+							},
+							"examples": {
+								"Valid User": {
+									"summary": "Valid User",
+									"value": {
+										"name": "John Doe",
+										"email": "john.doe@devscope.net"
+									}
+								},
+								"Empty Name": {
+									"summary": "Empty Name",
+									"value": {
+										"name": "",
+										"email": "john.doe@example.com"
+									}
+								},
+								"Invalid Name Format": {
+									"summary": "Invalid Name Format",
+									"value": {
+										"name": "John",
+										"email": "john.doe@example.com"
+									}
+								},
+								"Empty Email": {
+									"summary": "Empty Email",
+									"value": {
+										"name": "John Doe",
+										"email": ""
+									}
+								},
+								"Invalid Email Format": {
+									"summary": "Invalid Email Format",
+									"value": {
+										"name": "John Doe",
+										"email": "john.doe"
+									}
+								},
+								"Invalid Email Domain": {
+									"summary": "Invalid Email Domain",
+									"value": {
+										"name": "John Doe",
+										"email": "john.doe@example.com"
+									}
+								}
+							}
+						}
+					}
+				},
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
-					"404": {}
+					"200": {
+						"description": "User logged",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Logged with token": {
+										"value": {
+											"token": "(jwt_token)"
+										}
+									}
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Empty name": {
+										"value": {
+											"errors": [
+												"Please enter a valid name."
+											]
+										}
+									},
+									"Only first name given": {
+										"value": {
+											"errors": [
+												"Name has to be at least name and surname."
+											]
+										}
+									},
+									"Empty email": {
+										"value": {
+											"errors": [
+												"Please enter a valid email address."
+											]
+										}
+									},
+									"Invalid email format": {
+										"value": {
+											"errors": [
+												"Please enter a valid email address."
+											]
+										}
+									},
+									"Invalid email domain": {
+										"value": {
+											"errors": [
+												"Email is not a DevScope email."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		},
-		"/users/login": {
-			"post": {
-				"summary": "",
-				"description": "",
-				"operationId": "",
-				"tags": [],
+		"/users": {
+			"get": {
+				"summary": "Get list of users registered in the system",
+				"operationId": "getUsers",
+				"tags": [
+					"Users"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
-					"404": {}
+					"200": {
+						"description": "List of users",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"List of users": {
+										"value": {
+											"users": [
+												{
+													"user_id": 1,
+													"user_name": "John Doe",
+													"user_email": "john.doe@devscope.net"
+												}
+											]
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					}
 				}
 			}
 		},
 		"/users/me": {
 			"get": {
-				"summary": "",
-				"description": "",
-				"operationId": "",
-				"tags": [],
+				"summary": "Get logged user details",
+				"operationId": "getUserData",
+				"tags": [
+					"Users"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
-					"404": {}
+					"200": {
+						"description": "User details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"List of users": {
+										"value": {
+											"user": {
+												"user_id": 1,
+												"user_name": "John Doe",
+												"user_email": "john.doe@devscope.net"
+											},
+											"ideas": [],
+											"tasks": []
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					}
 				}
 			}
 		},
 		"/users/me/ideas": {
 			"get": {
-				"summary": "",
-				"description": "",
-				"operationId": "",
-				"tags": [],
+				"summary": "Get logged user ideas",
+				"operationId": "getAllIdeas",
+				"tags": [
+					"Users",
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/per_page"
+					},
+					{
+						"$ref": "#/components/parameters/curr_page"
+					},
+					{
+						"$ref": "#/components/parameters/title"
+					},
+					{
+						"$ref": "#/components/parameters/category"
+					},
+					{
+						"$ref": "#/components/parameters/status"
+					},
+					{
+						"$ref": "#/components/parameters/sort"
+					}
+				],
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
-					"404": {}
+					"200": {
+						"description": "List of users",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"List of users": {
+										"value": {
+											"ideas": [],
+											"pagination": {
+												"total": 0,
+												"per_page": 20,
+												"curr_page": 1,
+												"prev_page": null,
+												"next_page": null,
+												"offset": 0,
+												"to": 20,
+												"last_page": 1
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Invalid per page": {
+										"value": {
+											"errors": [
+												"Please enter a valid per page quantity."
+											]
+										}
+									},
+									"Invalid current page": {
+										"value": {
+											"errors": [
+												"Please enter a valid current page number."
+											]
+										}
+									},
+									"Invalid title filter": {
+										"value": {
+											"errors": [
+												"Please enter a valid title."
+											]
+										}
+									},
+									"Invalid category filter": {
+										"value": {
+											"errors": [
+												"Please enter a valid category."
+											]
+										}
+									},
+									"Invalid status filter": {
+										"value": {
+											"errors": [
+												"Please enter a valid status."
+											]
+										}
+									},
+									"Invalid sort order": {
+										"value": {
+											"errors": [
+												"Please enter a valid sort type."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			},
 			"post": {
-				"summary": "",
-				"description": "",
-				"operationId": "",
-				"tags": [],
+				"summary": "Add a new idea",
+				"operationId": "addIdea",
+				"tags": [
+					"Users",
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"requestBody": {
+					"description": "idea to add to the system",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Ideas"
+							},
+							"examples": {
+								"Valid Idea": {
+									"summary": "Valid Idea",
+									"value": {
+										"title": "Idea",
+										"summary": "Brief description",
+										"description": "Big description of idea",
+										"category": 1,
+										"complexity": "Easy",
+										"duration": 1,
+										"technologies": [
+											1
+										]
+									}
+								}
+							}
+						}
+					}
+				},
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
-					"404": {}
+					"201": {
+						"description": "Idea created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Idea created": {
+										"value": {
+											"message": "Idea created.",
+											"ideaId": 1
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"404": {
+						"description": "Unexistent values",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Unexistent technologies": {
+										"value": {
+											"errors": [
+												"Some technologies you're trying to add don't exist."
+											]
+										}
+									},
+									"Unexistent coauthors": {
+										"value": {
+											"errors": [
+												"Some coauthors you're trying to add don't exist."
+											]
+										}
+									}
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Empty title": {
+										"value": {
+											"errors": [
+												"Please enter a title."
+											]
+										}
+									},
+									"Empty summary": {
+										"value": {
+											"errors": [
+												"Please enter a summary."
+											]
+										}
+									},
+									"Empty description": {
+										"value": {
+											"errors": [
+												"Please enter a description."
+											]
+										}
+									},
+									"Invalid category": {
+										"value": {
+											"errors": [
+												"Please enter a valid category."
+											]
+										}
+									},
+									"Empty complexity": {
+										"value": {
+											"errors": [
+												"Please enter a complexity."
+											]
+										}
+									},
+									"Invalid complexity": {
+										"value": {
+											"errors": [
+												"Please enter a valid complexity."
+											]
+										}
+									},
+									"Invalid duration": {
+										"value": {
+											"errors": [
+												"Please enter a valid duration."
+											]
+										}
+									},
+									"Invalid technologies list": {
+										"value": {
+											"errors": [
+												"Please enter a list of technologies."
+											]
+										}
+									},
+									"Invalid technologies list itens": {
+										"value": {
+											"errors": [
+												"Please enter valid technologies."
+											]
+										}
+									},
+									"Invalid coauthors list": {
+										"value": {
+											"errors": [
+												"Please enter a list of coauthors."
+											]
+										}
+									},
+									"Invalid coauthors list itens": {
+										"value": {
+											"errors": [
+												"Please enter valid coauthors."
+											]
+										}
+									},
+									"Empty details": {
+										"value": {
+											"errors": [
+												"Please enter details."
+											]
+										}
+									},
+									"Invalid isAnon": {
+										"value": {
+											"errors": [
+												"Please enter a valid value."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		},
 		"/users/me/ideas/{ideaId}": {
 			"get": {
-				"summary": "",
-				"description": "",
-				"operationId": "",
-				"tags": [],
+				"summary": "Get one idea that belongs to logged user",
+				"operationId": "getOneUserIdea",
+				"tags": [
+					"Users",
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/ideaId"
+					}
+				],
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
-					"404": {}
+					"200": {
+						"description": "Idea item",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Idea item": {
+										"value": {
+											"idea": {
+												"idea_id": 1,
+												"idea_title": "Idea",
+												"idea_summary": "Brief description",
+												"idea_description": "Big description of idea",
+												"idea_complexity": "Easy",
+												"idea_durationWeeks": 1,
+												"idea_status": "New",
+												"categoryId": 1,
+												"category": "Name",
+												"technologies": [
+													{
+														"technology_id": 1,
+														"technology_name": "TypeScript"
+													}
+												]
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"404": {
+						"description": "Unexistent idea id",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Unexistent idea id": {
+										"value": {
+											"error": "Idea not found."
+										}
+									}
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Invalid idea id": {
+										"value": {
+											"errors": [
+												"Please enter a valid idea id."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			},
 			"put": {
-				"summary": "",
-				"description": "",
-				"operationId": "",
-				"tags": [],
+				"summary": "Edit one idea that belongs to logged user",
+				"operationId": "editOneUserIdea",
+				"tags": [
+					"Users",
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/ideaId"
+					}
+				],
+				"requestBody": {
+					"description": "idea to edit to the system",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Users"
+							},
+							"examples": {
+								"Valid User": {
+									"summary": "Valid User",
+									"value": {
+										"name": "John Doe",
+										"email": "john.doe@devscope.net"
+									}
+								}
+							}
+						}
+					}
+				},
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
-					"404": {}
+					"200": {
+						"description": "Idea updated",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Idea updated": {
+										"value": {
+											"message": "Idea updated."
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"404": {
+						"description": "Unexistent idea id",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Unexistent idea id": {
+										"value": {
+											"error": "Idea not found."
+										}
+									}
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Invalid idea id": {
+										"value": {
+											"errors": [
+												"Please enter a valid idea id."
+											]
+										}
+									},
+									"Empty title": {
+										"value": {
+											"errors": [
+												"Please enter a title."
+											]
+										}
+									},
+									"Empty summary": {
+										"value": {
+											"errors": [
+												"Please enter a summary."
+											]
+										}
+									},
+									"Empty description": {
+										"value": {
+											"errors": [
+												"Please enter a description."
+											]
+										}
+									},
+									"Invalid category": {
+										"value": {
+											"errors": [
+												"Please enter a valid category."
+											]
+										}
+									},
+									"Empty complexity": {
+										"value": {
+											"errors": [
+												"Please enter a complexity."
+											]
+										}
+									},
+									"Invalid complexity": {
+										"value": {
+											"errors": [
+												"Please enter a valid complexity."
+											]
+										}
+									},
+									"Invalid duration": {
+										"value": {
+											"errors": [
+												"Please enter a valid duration."
+											]
+										}
+									},
+									"Invalid status": {
+										"value": {
+											"errors": [
+												"Please enter a valid status."
+											]
+										}
+									},
+									"Invalid technologies list": {
+										"value": {
+											"errors": [
+												"Please enter a list of technologies."
+											]
+										}
+									},
+									"Invalid technologies list itens": {
+										"value": {
+											"errors": [
+												"Please enter valid technologies."
+											]
+										}
+									},
+									"Invalid coauthors list": {
+										"value": {
+											"errors": [
+												"Please enter a list of coauthors."
+											]
+										}
+									},
+									"Invalid coauthors list itens": {
+										"value": {
+											"errors": [
+												"Please enter valid coauthors."
+											]
+										}
+									},
+									"Empty details": {
+										"value": {
+											"errors": [
+												"Please enter details."
+											]
+										}
+									},
+									"Invalid isAnon": {
+										"value": {
+											"errors": [
+												"Please enter a valid value."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		},
 		"/users/ranking": {
 			"get": {
-				"summary": "",
-				"description": "",
-				"operationId": "",
-				"tags": [],
+				"summary": "Get ranking list",
+				"operationId": "getUsersRanking",
+				"tags": [
+					"Users"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
-					"404": {}
+					"200": {
+						"description": "Ranking of users",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Ranking list": {
+										"value": {
+											"list": [
+												{
+													"user": "John Doe",
+													"ideas": 0,
+													"tasks": 0
+												}
+											]
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					}
 				}
 			}
 		},
 		"/categories": {
 			"get": {
-				"summary": "",
-				"description": "",
-				"operationId": "",
-				"tags": [],
+				"summary": "Get category list",
+				"operationId": "getAllCategories",
+				"tags": [
+					"Categories"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
-					"404": {}
+					"200": {
+						"description": "List of categories",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Ranking list": {
+										"value": {
+											"categories": [
+												{
+													"category_id": 1,
+													"category_name": "category"
+												}
+											]
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					}
 				}
 			},
 			"post": {
-				"summary": "",
-				"description": "",
-				"operationId": "",
-				"tags": [],
+				"summary": "Add category to the system",
+				"operationId": "createOneCategory",
+				"tags": [
+					"Categories"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"requestBody": {
+					"description": "category to add to the system",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Categories"
+							},
+							"examples": {
+								"Category": {
+									"summary": "Category to add",
+									"value": {
+										"name": "cat"
+									}
+								}
+							}
+						}
+					}
+				},
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
-					"404": {}
+					"201": {
+						"description": "Category added",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Category added": {
+										"value": {
+											"message": "Category created."
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Empty name": {
+										"value": {
+											"errors": [
+												"Please enter a category name."
+											]
+										}
+									},
+									"Existent name": {
+										"value": {
+											"errors": [
+												"Category name already added."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		},
 		"/technologies": {
 			"get": {
-				"summary": "",
-				"description": "",
-				"operationId": "",
-				"tags": [],
+				"summary": "Get technology list",
+				"operationId": "getAllTechnologies",
+				"tags": [
+					"Technologies"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
-					"404": {}
+					"200": {
+						"description": "List of technologies",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Ranking list": {
+										"value": {
+											"technologies": [
+												{
+													"technology_id": 1,
+													"technology_name": "technology"
+												}
+											]
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					}
 				}
 			},
 			"post": {
-				"summary": "",
-				"description": "",
-				"operationId": "",
-				"tags": [],
+				"summary": "Add category to the system",
+				"operationId": "createOneCategory",
+				"tags": [
+					"Technologies"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"requestBody": {
+					"description": "Technology to add to the system",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Technologies"
+							},
+							"examples": {
+								"Technology": {
+									"summary": "Technology to add",
+									"value": {
+										"name": "tech"
+									}
+								}
+							}
+						}
+					}
+				},
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
-					"404": {}
+					"201": {
+						"description": "Technology added",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Technology added": {
+										"value": {
+											"message": "Technology created."
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Empty name": {
+										"value": {
+											"errors": [
+												"Please enter a technology name."
+											]
+										}
+									},
+									"Existent name": {
+										"value": {
+											"errors": [
+												"Technology name already added."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		},
 		"/ideas": {
 			"get": {
 				"summary": "",
-				"description": "",
 				"operationId": "",
-				"tags": [],
+				"tags": [
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/per_page"
+					},
+					{
+						"$ref": "#/components/parameters/curr_page"
+					},
+					{
+						"$ref": "#/components/parameters/title"
+					},
+					{
+						"$ref": "#/components/parameters/category"
+					},
+					{
+						"$ref": "#/components/parameters/status"
+					},
+					{
+						"$ref": "#/components/parameters/sort"
+					}
+				],
 				"responses": {
 					"200": {},
 					"201": {},
 					"400": {},
-					"404": {}
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Invalid per page": {
+										"value": {
+											"errors": [
+												"Please enter a valid per page quantity."
+											]
+										}
+									},
+									"Invalid current page": {
+										"value": {
+											"errors": [
+												"Please enter a valid current page number."
+											]
+										}
+									},
+									"Invalid title filter": {
+										"value": {
+											"errors": [
+												"Please enter a valid title."
+											]
+										}
+									},
+									"Invalid category filter": {
+										"value": {
+											"errors": [
+												"Please enter a valid category."
+											]
+										}
+									},
+									"Invalid status filter": {
+										"value": {
+											"errors": [
+												"Please enter a valid status."
+											]
+										}
+									},
+									"Invalid sort order": {
+										"value": {
+											"errors": [
+												"Please enter a valid sort type."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		},
 		"/ideas/{ideaId}": {
 			"get": {
 				"summary": "",
-				"description": "",
 				"operationId": "",
-				"tags": [],
+				"tags": [
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/ideaId"
+					}
+				],
 				"responses": {
 					"200": {},
 					"201": {},
 					"400": {},
-					"404": {}
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"404": {},
+					"422": {}
 				}
 			},
 			"patch": {
 				"summary": "",
-				"description": "",
 				"operationId": "",
-				"tags": [],
+				"tags": [
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/ideaId"
+					}
+				],
 				"responses": {
 					"200": {},
 					"201": {},
 					"400": {},
-					"404": {}
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"404": {},
+					"422": {}
 				}
 			}
 		},
 		"/ideas/{ideaId}/interactions": {
 			"get": {
 				"summary": "",
-				"description": "",
 				"operationId": "",
-				"tags": [],
+				"tags": [
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/ideaId"
+					}
+				],
 				"responses": {
 					"200": {},
 					"201": {},
 					"400": {},
-					"404": {}
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"404": {},
+					"422": {}
 				}
 			},
 			"post": {
 				"summary": "",
-				"description": "",
 				"operationId": "",
-				"tags": [],
+				"tags": [
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/ideaId"
+					}
+				],
 				"responses": {
 					"200": {},
 					"201": {},
 					"400": {},
-					"404": {}
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"404": {},
+					"422": {}
 				}
 			}
 		},
 		"/ideas/{ideaId}/members": {
 			"get": {
 				"summary": "",
-				"description": "",
 				"operationId": "",
-				"tags": [],
+				"tags": [
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/ideaId"
+					}
+				],
 				"responses": {
 					"200": {},
 					"201": {},
 					"400": {},
-					"404": {}
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"404": {},
+					"422": {}
 				}
 			},
 			"post": {
 				"summary": "",
-				"description": "",
 				"operationId": "",
-				"tags": [],
+				"tags": [
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/ideaId"
+					}
+				],
 				"responses": {
 					"200": {},
 					"201": {},
 					"400": {},
-					"404": {}
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"404": {},
+					"422": {}
 				}
 			},
 			"delete": {
 				"summary": "",
-				"description": "",
 				"operationId": "",
-				"tags": [],
+				"tags": [
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/ideaId"
+					}
+				],
 				"responses": {
 					"200": {},
 					"201": {},
 					"400": {},
-					"404": {}
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"404": {},
+					"422": {}
 				}
 			}
 		},
 		"/ideas/{ideaId}/invitations": {
 			"post": {
 				"summary": "",
-				"description": "",
 				"operationId": "",
-				"tags": [],
+				"tags": [
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/ideaId"
+					}
+				],
 				"responses": {
 					"200": {},
 					"201": {},
 					"400": {},
-					"404": {}
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"404": {},
+					"422": {}
 				}
 			}
 		},
 		"/ideas/{ideaId}/invitations/{userId}": {
 			"put": {
 				"summary": "",
-				"description": "",
 				"operationId": "",
-				"tags": [],
+				"tags": [
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/ideaId"
+					},
+					{
+						"$ref": "#/components/parameters/userId"
+					}
+				],
 				"responses": {
 					"200": {},
 					"201": {},
 					"400": {},
-					"404": {}
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"404": {},
+					"422": {}
 				}
 			}
 		},
 		"/ideas/{ideaId}/tasks": {
 			"get": {
 				"summary": "",
-				"description": "",
 				"operationId": "",
-				"tags": [],
+				"tags": [
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/ideaId"
+					}
+				],
 				"responses": {
 					"200": {},
 					"201": {},
 					"400": {},
-					"404": {}
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"404": {},
+					"422": {}
 				}
 			},
 			"post": {
 				"summary": "",
-				"description": "",
 				"operationId": "",
-				"tags": [],
+				"tags": [
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/ideaId"
+					}
+				],
 				"responses": {
 					"200": {},
 					"201": {},
 					"400": {},
-					"404": {}
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"404": {},
+					"422": {}
 				}
 			}
 		},
 		"/ideas/{ideaId}/tasks/{taskId}": {
 			"put": {
 				"summary": "",
-				"description": "",
 				"operationId": "",
-				"tags": [],
+				"tags": [
+					"Ideas"
+				],
 				"security": [
 					{
 						"bearer": []
 					}
 				],
-				"parameters": [],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/ideaId"
+					},
+					{
+						"$ref": "#/components/parameters/taskId"
+					}
+				],
 				"responses": {
 					"200": {},
 					"201": {},
 					"400": {},
-					"404": {}
+					"401": {
+						"$ref": "#/components/responses/unauthorized"
+					},
+					"404": {},
+					"422": {}
 				}
 			}
 		}
