@@ -37,7 +37,7 @@ app.all("*", (req, res) => res.status(404).json({ error: "Route not found!" }));
 
 (async () => {
     await db.sync();
-    app.listen(host, () =>
+    app.listen(port, () =>
         console.log(`App listening on port ${port}`)
     );
 })();
