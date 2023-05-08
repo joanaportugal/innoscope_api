@@ -552,7 +552,7 @@
 		}
 	],
 	"paths": {
-		"/users/login": {
+		"/api/users/login": {
 			"post": {
 				"summary": "Register/Log user in the system",
 				"operationId": "login",
@@ -647,7 +647,7 @@
 				}
 			}
 		},
-		"/users": {
+		"/api/users": {
 			"get": {
 				"summary": "Get list of users registered in the system",
 				"operationId": "getUsers",
@@ -689,7 +689,7 @@
 				}
 			}
 		},
-		"/users/me": {
+		"/api/users/me": {
 			"get": {
 				"summary": "Get logged user details",
 				"operationId": "getUserData",
@@ -731,7 +731,7 @@
 				}
 			}
 		},
-		"/users/me/ideas": {
+		"/api/users/me/ideas": {
 			"get": {
 				"summary": "Get logged user ideas",
 				"operationId": "getAllIdeas",
@@ -1044,7 +1044,7 @@
 				}
 			}
 		},
-		"/users/me/ideas/{ideaId}": {
+		"/api/users/me/ideas/{ideaId}": {
 			"get": {
 				"summary": "Get one idea that belongs to logged user",
 				"operationId": "getOneUserIdea",
@@ -1304,7 +1304,7 @@
 				}
 			}
 		},
-		"/users/ranking": {
+		"/api/users/ranking": {
 			"get": {
 				"summary": "Get ranking list",
 				"operationId": "getUsersRanking",
@@ -1346,7 +1346,7 @@
 				}
 			}
 		},
-		"/categories": {
+		"/api/categories": {
 			"get": {
 				"summary": "Get category list",
 				"operationId": "getAllCategories",
@@ -1466,7 +1466,7 @@
 				}
 			}
 		},
-		"/technologies": {
+		"/api/technologies": {
 			"get": {
 				"summary": "Get technology list",
 				"operationId": "getAllTechnologies",
@@ -1586,7 +1586,7 @@
 				}
 			}
 		},
-		"/ideas": {
+		"/api/ideas": {
 			"get": {
 				"summary": "Get all ideas in the system",
 				"operationId": "getAllCommunityIdeas",
@@ -1706,7 +1706,7 @@
 				}
 			}
 		},
-		"/ideas/{ideaId}": {
+		"/api/ideas/{ideaId}": {
 			"get": {
 				"summary": "Get one idea details",
 				"operationId": "getCommunityIdeaDetails",
@@ -1863,7 +1863,7 @@
 				}
 			}
 		},
-		"/ideas/{ideaId}/interactions": {
+		"/api/ideas/{ideaId}/interactions": {
 			"get": {
 				"summary": "Get votes and comments of idea",
 				"operationId": "getIdeaInteractions",
@@ -2061,7 +2061,7 @@
 				}
 			}
 		},
-		"/ideas/{ideaId}/members": {
+		"/api/ideas/{ideaId}/members": {
 			"get": {
 				"summary": "Get idea current members",
 				"operationId": "getCommunityIdeaMembers",
@@ -2292,7 +2292,7 @@
 				}
 			}
 		},
-		"/ideas/{ideaId}/tasks": {
+		"/api/ideas/{ideaId}/tasks": {
 			"get": {
 				"summary": "Get idea tasks",
 				"operationId": "getCommunityIdeaTasks",
@@ -2522,7 +2522,7 @@
 				}
 			}
 		},
-		"/ideas/{ideaId}/tasks/{taskId}": {
+		"/api/ideas/{ideaId}/tasks/{taskId}": {
 			"put": {
 				"summary": "Edit task details",
 				"operationId": "editCommunityIdeaTask",
