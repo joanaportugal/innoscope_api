@@ -24,6 +24,8 @@ const ideaController = new IdeaController();
 // At 00:00 on every Monday
 cron.schedule("0 0 * * 1", ideaController.updateIdeasStatusCron);
 
+app.all("/", (req, res) => res.status(400).send("API documentation on /docs"));
+
 app.use(
     "/docs",
     swaggerUi.serve,

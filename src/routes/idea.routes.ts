@@ -11,6 +11,7 @@ import IdeaIDParam from "../utils/validators/IdeaIDParam";
 import { UserIDBody } from "../utils/validators/UserIdValidator";
 import MemberValidator from "../utils/validators/MemberValidator";
 import TaskValidator from "../utils/validators/TaskValidator";
+import TaskIDParam from "../utils/validators/TaskIDParam";
 
 const router = Router();
 const authController = new AuthController();
@@ -70,18 +71,6 @@ router.delete("/:ideaId/members",
 	validationErrors,
 	ideaController.removeLoggedUserFromMembers);
 
-router.post("/:ideaId/invitations",
-	authController.verifyToken,
-	[...IdeaIDParam, ...UserIDBody],
-	validationErrors,
-	ideaController.addRequestUserToMembers);
-
-router.put("/:ideaId/invitations/:userId",
-	authController.verifyToken,
-	MemberValidator,
-	validationErrors,
-	ideaController.editRequestedUserToMembers);
-
 router.get("/:ideaId/tasks",
 	authController.verifyToken,
 	IdeaIDParam,
@@ -96,7 +85,7 @@ router.post("/:ideaId/tasks",
 
 router.put("/:ideaId/tasks/:taskId",
 	authController.verifyToken,
-	IdeaIDParam,
+	[...IdeaIDParam, ...TaskIDParam, ...TaskValidator],
 	validationErrors,
 	ideaController.editCommunityIdeaTask);
 

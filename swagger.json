@@ -513,6 +513,23 @@
 						}
 					}
 				}
+			},
+			"unexistent_idea": {
+				"description": "Unexistent idea id",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object"
+						},
+						"examples": {
+							"Unexistent idea id": {
+								"value": {
+									"error": "Idea not found."
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	},
@@ -551,46 +568,11 @@
 								"$ref": "#/components/schemas/Users"
 							},
 							"examples": {
-								"Valid User": {
+								"User": {
 									"summary": "Valid User",
 									"value": {
 										"name": "John Doe",
 										"email": "john.doe@devscope.net"
-									}
-								},
-								"Empty Name": {
-									"summary": "Empty Name",
-									"value": {
-										"name": "",
-										"email": "john.doe@example.com"
-									}
-								},
-								"Invalid Name Format": {
-									"summary": "Invalid Name Format",
-									"value": {
-										"name": "John",
-										"email": "john.doe@example.com"
-									}
-								},
-								"Empty Email": {
-									"summary": "Empty Email",
-									"value": {
-										"name": "John Doe",
-										"email": ""
-									}
-								},
-								"Invalid Email Format": {
-									"summary": "Invalid Email Format",
-									"value": {
-										"name": "John Doe",
-										"email": "john.doe"
-									}
-								},
-								"Invalid Email Domain": {
-									"summary": "Invalid Email Domain",
-									"value": {
-										"name": "John Doe",
-										"email": "john.doe@example.com"
 									}
 								}
 							}
@@ -1118,21 +1100,7 @@
 						"$ref": "#/components/responses/unauthorized"
 					},
 					"404": {
-						"description": "Unexistent idea id",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object"
-								},
-								"examples": {
-									"Unexistent idea id": {
-										"value": {
-											"error": "Idea not found."
-										}
-									}
-								}
-							}
-						}
+						"$ref": "#/components/responses/unexistent_idea"
 					},
 					"422": {
 						"description": "Invalid fields",
@@ -1214,21 +1182,7 @@
 						"$ref": "#/components/responses/unauthorized"
 					},
 					"404": {
-						"description": "Unexistent idea id",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object"
-								},
-								"examples": {
-									"Unexistent idea id": {
-										"value": {
-											"error": "Idea not found."
-										}
-									}
-								}
-							}
-						}
+						"$ref": "#/components/responses/unexistent_idea"
 					},
 					"422": {
 						"description": "Invalid fields",
@@ -1634,8 +1588,8 @@
 		},
 		"/ideas": {
 			"get": {
-				"summary": "",
-				"operationId": "",
+				"summary": "Get all ideas in the system",
+				"operationId": "getAllCommunityIdeas",
 				"tags": [
 					"Ideas"
 				],
@@ -1665,9 +1619,33 @@
 					}
 				],
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
+					"200": {
+						"description": "List of users",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"List of users": {
+										"value": {
+											"ideas": [],
+											"pagination": {
+												"total": 0,
+												"per_page": 20,
+												"curr_page": 1,
+												"prev_page": null,
+												"next_page": null,
+												"offset": 0,
+												"to": 20,
+												"last_page": 1
+											}
+										}
+									}
+								}
+							}
+						}
+					},
 					"401": {
 						"$ref": "#/components/responses/unauthorized"
 					},
@@ -1730,8 +1708,8 @@
 		},
 		"/ideas/{ideaId}": {
 			"get": {
-				"summary": "",
-				"operationId": "",
+				"summary": "Get one idea details",
+				"operationId": "getCommunityIdeaDetails",
 				"tags": [
 					"Ideas"
 				],
@@ -1746,19 +1724,69 @@
 					}
 				],
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
+					"200": {
+						"description": "Idea item",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Idea item": {
+										"value": {
+											"idea": {
+												"idea_id": 1,
+												"idea_title": "Idea",
+												"idea_summary": "Brief description",
+												"idea_description": "Big description of idea",
+												"idea_complexity": "Easy",
+												"idea_durationWeeks": 1,
+												"idea_status": "New",
+												"categoryId": 1,
+												"category": "Name",
+												"technologies": [
+													{
+														"technology_id": 1,
+														"technology_name": "TypeScript"
+													}
+												]
+											}
+										}
+									}
+								}
+							}
+						}
+					},
 					"401": {
 						"$ref": "#/components/responses/unauthorized"
 					},
-					"404": {},
-					"422": {}
+					"404": {
+						"$ref": "#/components/responses/unexistent_idea"
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Invalid idea id": {
+										"value": {
+											"errors": [
+												"Please enter a valid idea id."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			},
 			"patch": {
-				"summary": "",
-				"operationId": "",
+				"summary": "Update one idea status to next status available",
+				"operationId": "updateIdeaStatus",
 				"tags": [
 					"Ideas"
 				],
@@ -1773,21 +1801,72 @@
 					}
 				],
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
+					"200": {
+						"description": "Idea updated",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Idea updated": {
+										"value": {
+											"message": "Idea status updated successfully."
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Error on update",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Cannot update": {
+										"value": {
+											"error": "Idea status cannot be updated."
+										}
+									}
+								}
+							}
+						}
+					},
 					"401": {
 						"$ref": "#/components/responses/unauthorized"
 					},
-					"404": {},
-					"422": {}
+					"404": {
+						"$ref": "#/components/responses/unexistent_idea"
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Invalid idea id": {
+										"value": {
+											"errors": [
+												"Please enter a valid idea id."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		},
 		"/ideas/{ideaId}/interactions": {
 			"get": {
-				"summary": "",
-				"operationId": "",
+				"summary": "Get votes and comments of idea",
+				"operationId": "getIdeaInteractions",
 				"tags": [
 					"Ideas"
 				],
@@ -1802,19 +1881,59 @@
 					}
 				],
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
+					"200": {
+						"description": "Interactions list",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Idea interactions": {
+										"value": {
+											"voteAvg": 4,
+											"comments": [
+												{
+													"comment": "text",
+													"user": "John Doe"
+												}
+											]
+										}
+									}
+								}
+							}
+						}
+					},
 					"401": {
 						"$ref": "#/components/responses/unauthorized"
 					},
-					"404": {},
-					"422": {}
+					"404": {
+						"$ref": "#/components/responses/unexistent_idea"
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Invalid idea id": {
+										"value": {
+											"errors": [
+												"Please enter a valid idea id."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			},
 			"post": {
-				"summary": "",
-				"operationId": "",
+				"summary": "Add vote and/or comment to idea",
+				"operationId": "addIdeaInteraction",
 				"tags": [
 					"Ideas"
 				],
@@ -1828,22 +1947,124 @@
 						"$ref": "#/components/parameters/ideaId"
 					}
 				],
+				"requestBody": {
+					"description": "comment/vote to add to idea",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object"
+							},
+							"examples": {
+								"Vote": {
+									"summary": "Vote to add to idea",
+									"value": {
+										"vote": 4
+									}
+								},
+								"Comment": {
+									"summary": "Comment to add to idea",
+									"value": {
+										"comment": "text"
+									}
+								},
+								"Vote+Comment": {
+									"summary": "Vote and comment to add to idea",
+									"value": {
+										"vote": 4,
+										"comment": "text"
+									}
+								}
+							}
+						}
+					}
+				},
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
+					"200": {
+						"description": "Interaction creation",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Interaction created/updated": {
+										"value": {
+											"message": "Interaction added or updated."
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Interaction creation error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Idea not open for interaction": {
+										"value": {
+											"message": "Idea is not open for interaction."
+										}
+									},
+									"Idea's author interacting": {
+										"value": {
+											"message": "You can't interact with your idea."
+										}
+									}
+								}
+							}
+						}
+					},
 					"401": {
 						"$ref": "#/components/responses/unauthorized"
 					},
-					"404": {},
-					"422": {}
+					"404": {
+						"$ref": "#/components/responses/unexistent_idea"
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Invalid idea id": {
+										"value": {
+											"errors": [
+												"Please enter a valid idea id."
+											]
+										}
+									},
+									"Invalid vote": {
+										"value": {
+											"errors": [
+												"Please enter a valid vote between 1 and 5."
+											]
+										}
+									},
+									"Empty comment": {
+										"value": {
+											"errors": [
+												"Please enter a comment."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		},
 		"/ideas/{ideaId}/members": {
 			"get": {
-				"summary": "",
-				"operationId": "",
+				"summary": "Get idea current members",
+				"operationId": "getCommunityIdeaMembers",
 				"tags": [
 					"Ideas"
 				],
@@ -1858,19 +2079,60 @@
 					}
 				],
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
+					"200": {
+						"description": "Members list",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Idea members": {
+										"value": {
+											"members": [
+												{
+													"user_id": 1,
+													"user_name": "John Doe",
+													"user_email": "john.doe@devscope.net",
+													"role": "Member"
+												}
+											]
+										}
+									}
+								}
+							}
+						}
+					},
 					"401": {
 						"$ref": "#/components/responses/unauthorized"
 					},
-					"404": {},
-					"422": {}
+					"404": {
+						"$ref": "#/components/responses/unexistent_idea"
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Invalid idea id": {
+										"value": {
+											"errors": [
+												"Please enter a valid idea id."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			},
 			"post": {
-				"summary": "",
-				"operationId": "",
+				"summary": "Add current user to idea members",
+				"operationId": "addLoggedUserToMembers",
 				"tags": [
 					"Ideas"
 				],
@@ -1885,19 +2147,75 @@
 					}
 				],
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
+					"200": {
+						"description": "Member added to idea collaborators",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Member added": {
+										"value": {
+											"message": "User added to team members."
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Error on add",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Idea doesn't accept members (status)": {
+										"value": {
+											"error": "Idea is not open for members."
+										}
+									},
+									"User is already member": {
+										"value": {
+											"error": "User is already in team."
+										}
+									}
+								}
+							}
+						}
+					},
 					"401": {
 						"$ref": "#/components/responses/unauthorized"
 					},
-					"404": {},
-					"422": {}
+					"404": {
+						"$ref": "#/components/responses/unexistent_idea"
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Invalid idea id": {
+										"value": {
+											"errors": [
+												"Please enter a valid idea id."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			},
 			"delete": {
-				"summary": "",
-				"operationId": "",
+				"summary": "Leave idea members",
+				"operationId": "removeLoggedUserFromMembers",
 				"tags": [
 					"Ideas"
 				],
@@ -1912,82 +2230,72 @@
 					}
 				],
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
+					"200": {
+						"description": "Member left",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Member left": {
+										"value": {
+											"message": "User removed from team members."
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "User isn't a member",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Member error": {
+										"value": {
+											"error": "User is not in team."
+										}
+									}
+								}
+							}
+						}
+					},
 					"401": {
 						"$ref": "#/components/responses/unauthorized"
 					},
-					"404": {},
-					"422": {}
-				}
-			}
-		},
-		"/ideas/{ideaId}/invitations": {
-			"post": {
-				"summary": "",
-				"operationId": "",
-				"tags": [
-					"Ideas"
-				],
-				"security": [
-					{
-						"bearer": []
-					}
-				],
-				"parameters": [
-					{
-						"$ref": "#/components/parameters/ideaId"
-					}
-				],
-				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
-					"401": {
-						"$ref": "#/components/responses/unauthorized"
+					"404": {
+						"$ref": "#/components/responses/unexistent_idea"
 					},
-					"404": {},
-					"422": {}
-				}
-			}
-		},
-		"/ideas/{ideaId}/invitations/{userId}": {
-			"put": {
-				"summary": "",
-				"operationId": "",
-				"tags": [
-					"Ideas"
-				],
-				"security": [
-					{
-						"bearer": []
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Invalid idea id": {
+										"value": {
+											"errors": [
+												"Please enter a valid idea id."
+											]
+										}
+									}
+								}
+							}
+						}
 					}
-				],
-				"parameters": [
-					{
-						"$ref": "#/components/parameters/ideaId"
-					},
-					{
-						"$ref": "#/components/parameters/userId"
-					}
-				],
-				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
-					"401": {
-						"$ref": "#/components/responses/unauthorized"
-					},
-					"404": {},
-					"422": {}
 				}
 			}
 		},
 		"/ideas/{ideaId}/tasks": {
 			"get": {
-				"summary": "",
-				"operationId": "",
+				"summary": "Get idea tasks",
+				"operationId": "getCommunityIdeaTasks",
 				"tags": [
 					"Ideas"
 				],
@@ -2002,19 +2310,76 @@
 					}
 				],
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
+					"200": {
+						"description": "Idea's task list",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Idea tasks": {
+										"value": {
+											"tasks": [
+												{
+													"task_id": 1,
+													"task_description": "description",
+													"task_dueDate": "06/30/2023"
+												}
+											]
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Idea's task list errors",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"User without permission": {
+										"value": {
+											"error": "You do not have permission to see tasks to this idea."
+										}
+									}
+								}
+							}
+						}
+					},
 					"401": {
 						"$ref": "#/components/responses/unauthorized"
 					},
-					"404": {},
-					"422": {}
+					"404": {
+						"$ref": "#/components/responses/unexistent_idea"
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Invalid idea id": {
+										"value": {
+											"errors": [
+												"Please enter a valid idea id."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			},
 			"post": {
-				"summary": "",
-				"operationId": "",
+				"summary": "Add task to idea",
+				"operationId": "addCommunityIdeaTask",
 				"tags": [
 					"Ideas"
 				],
@@ -2028,22 +2393,139 @@
 						"$ref": "#/components/parameters/ideaId"
 					}
 				],
+				"requestBody": {
+					"description": "task to add to idea",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object"
+							},
+							"examples": {
+								"Task without user attribute": {
+									"summary": "Idea without user",
+									"value": {
+										"description": "List requirements",
+										"dueDate": "06/30/2023"
+									}
+								},
+								"Task with user attribute": {
+									"summary": "Idea without user",
+									"value": {
+										"description": "List requirements",
+										"dueDate": "06/30/2023",
+										"user": 1
+									}
+								}
+							}
+						}
+					}
+				},
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
+					"201": {
+						"description": "Task added to idea",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Task Added": {
+										"value": {
+											"message": "Task added to idea."
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Idea's task list errors",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"User without permission": {
+										"value": {
+											"error": "You do not have permission to add tasks to this idea."
+										}
+									},
+									"Idea status invalid for adding tasks": {
+										"value": {
+											"error": "Cannot add tasks for this idea."
+										}
+									}
+								}
+							}
+						}
+					},
 					"401": {
 						"$ref": "#/components/responses/unauthorized"
 					},
-					"404": {},
-					"422": {}
+					"404": {
+						"$ref": "#/components/responses/unexistent_idea"
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Invalid idea id": {
+										"value": {
+											"errors": [
+												"Please enter a valid idea id."
+											]
+										}
+									},
+									"Empty description": {
+										"value": {
+											"errors": [
+												"Please enter a description."
+											]
+										}
+									},
+									"Empty due date": {
+										"value": {
+											"errors": [
+												"Please enter a due date."
+											]
+										}
+									},
+									"Invalid due date": {
+										"value": {
+											"errors": [
+												"Please enter a valid date format."
+											]
+										}
+									},
+									"Date before current date": {
+										"value": {
+											"error": "Pick a date after today."
+										}
+									},
+									"Invalid user": {
+										"value": {
+											"errors": [
+												"Please enter a user."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		},
 		"/ideas/{ideaId}/tasks/{taskId}": {
 			"put": {
-				"summary": "",
-				"operationId": "",
+				"summary": "Edit task details",
+				"operationId": "editCommunityIdeaTask",
 				"tags": [
 					"Ideas"
 				],
@@ -2060,15 +2542,174 @@
 						"$ref": "#/components/parameters/taskId"
 					}
 				],
+				"requestBody": {
+					"description": "task to update to idea",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object"
+							},
+							"examples": {
+								"Task without user attribute": {
+									"summary": "Idea without user",
+									"value": {
+										"description": "List requirements",
+										"dueDate": "06/30/2023"
+									}
+								},
+								"Task with user attribute": {
+									"summary": "Idea without user",
+									"value": {
+										"description": "List requirements",
+										"dueDate": "06/30/2023",
+										"user": 1
+									}
+								},
+								"Task with status attribute": {
+									"summary": "Idea without user",
+									"value": {
+										"description": "List requirements",
+										"dueDate": "06/30/2023",
+										"user": 1,
+										"status": "On Going"
+									}
+								}
+							}
+						}
+					}
+				},
 				"responses": {
-					"200": {},
-					"201": {},
-					"400": {},
+					"201": {
+						"description": "Task updated to idea",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Task updated": {
+										"value": {
+											"message": "Task updated successfully."
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Idea's task list errors",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"User without permission": {
+										"value": {
+											"error": "You do not have permission to edit tasks to this idea."
+										}
+									},
+									"Idea status invalid for adding tasks": {
+										"value": {
+											"error": "Cannot edit tasks for this idea."
+										}
+									}
+								}
+							}
+						}
+					},
 					"401": {
 						"$ref": "#/components/responses/unauthorized"
 					},
-					"404": {},
-					"422": {}
+					"404": {
+						"description": "Unexistent idea id",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Unexistent idea id": {
+										"value": {
+											"error": "Idea not found."
+										}
+									},
+									"Unexistent task associated": {
+										"value": {
+											"error": "Task not found or it doesn't belong to that idea."
+										}
+									}
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Invalid fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object"
+								},
+								"examples": {
+									"Invalid idea id": {
+										"value": {
+											"errors": [
+												"Please enter a valid idea id."
+											]
+										}
+									},
+									"Invalid task id": {
+										"value": {
+											"errors": [
+												"Please enter a valid task id."
+											]
+										}
+									},
+									"Empty description": {
+										"value": {
+											"errors": [
+												"Please enter a description."
+											]
+										}
+									},
+									"Empty due date": {
+										"value": {
+											"errors": [
+												"Please enter a due date."
+											]
+										}
+									},
+									"Invalid due date": {
+										"value": {
+											"errors": [
+												"Please enter a valid date format."
+											]
+										}
+									},
+									"Date before current date": {
+										"value": {
+											"error": "Pick a date after today."
+										}
+									},
+									"Invalid user": {
+										"value": {
+											"errors": [
+												"Please enter a user."
+											]
+										}
+									},
+									"Invalid status": {
+										"value": {
+											"errors": [
+												"Please enter a valid status."
+											]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}

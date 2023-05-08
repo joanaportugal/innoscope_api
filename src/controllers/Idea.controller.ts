@@ -199,7 +199,7 @@ class IdeaController {
 				}, { where: filter });
 			}
 
-			return res.status(200).json({ message: "Interaction added or updated!" });
+			return res.status(200).json({ message: "Interaction added or updated." });
 		} catch (err) {
 			return res.status(500).json({
 				error: "An error occurred. Try again!",
@@ -269,9 +269,6 @@ class IdeaController {
 			if (!idea) {
 				return res.status(404).json({ error: "Idea not found." });
 			}
-			if (idea.idea_status !== "Approved" && idea.idea_status !== "Waiting" && idea.idea_status !== "On Going") {
-				return res.status(400).json({ error: "Idea is not open for members." });
-			}
 			// validate if user is already in team
 			let validation = await db.IdeaTeam.findOne({ where: { IdeaIdeaId: idea.idea_id, UserUserId: +req.details.loggedUserId } });
 			if (!validation) {
@@ -289,71 +286,12 @@ class IdeaController {
 		}
 	}
 
-	async addRequestUserToMembers(req: Request, res: Response) {
-		try {
-			// check idea status - only "Waiting" or "On Going"
-			const idea = await db.Idea.findByPk(+req.params.ideaId);
-			if (!idea) {
-				return res.status(404).json({ error: "Idea not found." });
-			}
-			if (idea.idea_status !== "Approved" && idea.idea_status !== "Waiting" && idea.idea_status !== "On Going") {
-				return res.status(400).json({ error: "Idea is not open for members." });
-			}
-			// validate if user is already in team
-			let validation = await db.IdeaTeam.findOne({ where: { IdeaIdeaId: idea.idea_id, UserUserId: +req.body.userId } });
-			if (validation) {
-				return res.status(400).json({ error: "User is already in team or already requested." });
-			}
-			// add user to team
-			await db.IdeaTeam.create({
-				IdeaIdeaId: idea.idea_id,
-				UserUserId: +req.body.userId,
-				role: "Requested"
-			});
-			return res.status(200).json({ message: "User requested to team members." });
-		} catch (err) {
-			return res.status(500).json({
-				error: "An error occurred. Try again!",
-			});
-		}
-	}
-
-	async editRequestedUserToMembers(req: Request, res: Response) {
-		try {
-			const idea = await db.Idea.findByPk(+req.params.ideaId);
-			if (!idea) {
-				return res.status(404).json({ error: "Idea not found." });
-			}
-			let validation = await db.IdeaTeam.findOne({ where: { IdeaIdeaId: idea.idea_id, UserUserId: +req.params.userId } });
-			if (!validation) {
-				return res.status(400).json({ error: "There is no request for that team." });
-			}
-			// delete if value is false, update is true
-			if (req.body.accepted) {
-				await db.IdeaTeam.update({ role: "Member" },
-					{ where: { IdeaIdeaId: idea.idea_id, UserUserId: +req.params.userId } });
-			}
-			else {
-				await db.IdeaTeam.destroy({ where: { IdeaIdeaId: idea.idea_id, UserUserId: +req.params.userId } });
-			}
-
-			return res.status(200).json({ message: "User updated in team members." });
-		} catch (err) {
-			return res.status(500).json({
-				error: "An error occurred. Try again!",
-			});
-		}
-	}
-
 	async getCommunityIdeaTasks(req: any, res: Response) {
 		try {
 			// check if task is "Waiting" or "On Going"
 			const idea = await db.Idea.findByPk(+req.params.ideaId);
 			if (!idea) {
 				return res.status(404).json({ error: "Idea not found." });
-			}
-			if (idea.idea_status !== "Waiting" && idea.idea_status !== "On Going") {
-				return res.status(400).json({ error: "Cannot add tasks for this idea." });
 			}
 			// validate if logged user has permission to see task
 			let validation = await db.IdeaTeam.findOne({
@@ -392,7 +330,7 @@ class IdeaController {
 		picked_withoutTime.setUTCHours(0, 0, 0, 0);
 
 		if (!(today_withoutTime.getTime() < picked_withoutTime.getTime())) {
-			return res.status(400).json({ error: "Pick a date after today." });
+			return res.status(422).json({ error: "Pick a date after today." });
 		}
 
 		try {
@@ -448,7 +386,7 @@ class IdeaController {
 		picked_withoutTime.setUTCHours(0, 0, 0, 0);
 
 		if (!(today_withoutTime.getTime() < picked_withoutTime.getTime())) {
-			return res.status(400).json({ error: "Pick a date after today." });
+			return res.status(422).json({ error: "Pick a date after today." });
 		}
 
 		try {
@@ -458,7 +396,7 @@ class IdeaController {
 				return res.status(404).json({ error: "Idea not found." });
 			}
 			if (idea.idea_status !== "Waiting" && idea.idea_status !== "On Going") {
-				return res.status(400).json({ error: "Cannot add tasks for this idea." });
+				return res.status(400).json({ error: "Cannot edit tasks for this idea." });
 			}
 			// validate if task belongs to idea
 			const task = await db.IdeaTask.findOne({ where: { IdeaIdeaId: idea.idea_id, task_id: +req.params.taskId } });
