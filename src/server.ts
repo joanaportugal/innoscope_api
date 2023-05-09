@@ -9,7 +9,6 @@ import IdeaController from "./controllers/Idea.controller";
 const swaggerDocument = require("../swagger.json");
 
 const port = Number(process.env.PORT) || 3000;
-const host = process.env.HOST || "127.0.0.1";
 
 const app = express();
 
@@ -38,7 +37,7 @@ app.all("*", (req, res) => res.status(404).json({ error: "Route not found!" }));
 
 (async () => {
     await db.sync();
-    app.listen(port, host, () =>
-        console.log(`App listening at http://${host}:${port}/`)
+    app.listen(port, () =>
+        console.log(`App listening on port ${port}`)
     );
 })();
