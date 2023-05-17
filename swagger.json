@@ -41,7 +41,10 @@
 						"format": "email"
 					}
 				},
-				"example": {}
+				"example": {
+					"user_name": "John Doe",
+					"user_email": "john.doe@devscope.net"
+				}
 			},
 			"Categories": {
 				"type": "object",
@@ -901,8 +904,7 @@
 								"examples": {
 									"Idea created": {
 										"value": {
-											"message": "Idea created.",
-											"ideaId": 1
+											"message": "Idea created."
 										}
 									}
 								}

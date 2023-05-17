@@ -10,7 +10,7 @@ class UserController {
 		let per_page = req.query.per_page || 20;
 		let curr_page = req.query.curr_page || 1;
 
-		let filters: any = { ...filterParams(req.query) };
+		let filters: any = { ...filterParams(decodeURI(req.query)) };
 
 		try {
 			const offset = (curr_page > 1 ? curr_page - 1 : curr_page) * per_page;

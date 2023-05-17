@@ -7,7 +7,7 @@ class IdeaController {
 	async getAllCommunityIdeas(req: any, res: Response) {
 		let per_page = req.query.per_page || 4;
 		let curr_page = req.query.curr_page || 1;
-		let filters: any = { ...filterParams(req.query) };
+		let filters: any = { ...filterParams(decodeURI(req.query)) };
 		try {
 			const offset = (curr_page < 1 ? curr_page : curr_page - 1) * per_page;
 			let allIdeas = await db.Idea.findAll({
