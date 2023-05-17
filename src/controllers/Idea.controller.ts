@@ -5,17 +5,18 @@ import { filterParams, setSort } from "../utils/searches/IdeaSearchAll";
 
 class IdeaController {
 	async getAllCommunityIdeas(req: any, res: Response) {
-		let per_page = req.query.per_page || 4;
-		let curr_page = req.query.curr_page || 1;
-		let filters: any = { ...filterParams(decodeURI(req.query)) };
 		try {
-			const offset = (curr_page < 1 ? curr_page : curr_page - 1) * per_page;
+			let per_page = req.query.per_page || 20;
+			let curr_page = req.query.curr_page || 1;
+			let filters: any = { ...filterParams(req.query) };
+			const offset = (curr_page == 1 ? curr_page : curr_page - 1) * per_page;
 			let allIdeas = await db.Idea.findAll({
 				limit: per_page,
 				offset: offset,
 				where: { ...filters },
 				order: [setSort(req.query.sort)],
 			});
+
 			let ideas = [];
 
 			// clean unnecessary items
@@ -40,13 +41,12 @@ class IdeaController {
 			const last_page = Math.ceil(ideas.length / per_page);
 			let pagination = {
 				total: ideas.length,
-				per_page: per_page || 20,
-				curr_page: curr_page || 1,
+				per_page: per_page,
+				curr_page: curr_page,
 				prev_page: curr_page == 1 ? null : curr_page - 1,
 				next_page: curr_page == last_page ? null : curr_page + 1,
 				offset,
-				to: offset + per_page,
-				last_page,
+				last_page
 			};
 
 			return res.status(200).json({ ideas, pagination });
@@ -104,7 +104,7 @@ class IdeaController {
 			}
 			if (voteSum == 0 || (voteSum / interactions.length) < 4.5) {
 				await db.Idea.update({ idea_status: "Rejected" }, { where: { idea_id: idea.idea_id } });
-			} else if (voteSum >= 4.5) {
+			} else if ((voteSum / interactions.length) >= 4.5) {
 				await db.Idea.update({ idea_status: "Approved" }, { where: { idea_id: idea.idea_id } });
 			}
 		}
