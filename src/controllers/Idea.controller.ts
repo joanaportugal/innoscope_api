@@ -8,8 +8,10 @@ class IdeaController {
 		try {
 			let per_page = req.query.per_page || 20;
 			let curr_page = req.query.curr_page || 1;
+			let offset = (curr_page - 1) * per_page;
+
 			let filters: any = { ...filterParams(req.query) };
-			const offset = (curr_page == 1 ? curr_page : curr_page - 1) * per_page;
+
 			let allIdeas = await db.Idea.findAll({
 				limit: per_page,
 				offset: offset,

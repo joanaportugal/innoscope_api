@@ -9,12 +9,11 @@ class UserController {
 	async getAllIdeas(req: any, res: Response) {
 		let per_page = req.query.per_page || 20;
 		let curr_page = req.query.curr_page || 1;
+		let offset = (curr_page - 1) * per_page;
 
-		let filters: any = { ...filterParams(decodeURI(req.query)) };
+		let filters: any = { ...filterParams(req.query) };
 
 		try {
-			const offset = (curr_page > 1 ? curr_page - 1 : curr_page) * per_page;
-
 			const user = await db.User.findByPk(req.details.loggedUserId);
 
 			let ideas: any = [];
@@ -22,10 +21,11 @@ class UserController {
 			if (user) {
 				let allIdeas = await user.getIdeas({
 					limit: per_page,
-					offset: offset,
+					offset,
 					where: { ...filters },
 					order: [setSort(req.query.sort)],
 				});
+
 				// clean unnecessary items
 				for (const idea of allIdeas) {
 					const category = await db.Category.findByPk(idea.CategoryCategoryId);
@@ -269,7 +269,6 @@ class UserController {
 				return res.status(200).json({ message: "Idea updated." });
 			}
 			else {
-				console.log("erro");
 
 				return res.status(500).json({
 					error: "An error occurred. Try again!",

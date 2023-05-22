@@ -3,7 +3,7 @@ import { Op } from "sequelize";
 export function filterParams(query: any): object {
 	let filters: any = {};
 
-	if (query.title) filters.idea_title = { [Op.like]: `%${query.title}%` }
+	if (query.title) filters.idea_title = { [Op.like]: `%${decodeURI(query.title)}%` }
 	if (query.category) filters.CategoryCategoryId = query.category;
 	if (query.status) filters.idea_status = query.status;
 	if (query.complexity) filters.idea_complexity = query.complexity;
